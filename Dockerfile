@@ -1,5 +1,5 @@
 # Use the official Node.js image as the base image
-FROM node:20.0.0
+FROM node:24-alpine3.21
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -22,5 +22,5 @@ COPY src/ ./src
 # Build the application
 RUN npm run build 
 
-# Start the application
+# But this has error: reading-tutor  | sh: next: not found
 CMD ["npm", "start"]
