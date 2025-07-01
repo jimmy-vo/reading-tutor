@@ -1,8 +1,6 @@
 {
-  "name": "app",
+  "name": "reading-turor",
   "scripts": {
-    "start-electron": "electron .",
-    "package-win": "electron-packager . app --platform=win32 --arch=x64 --out=dist --overwrite",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -22,13 +20,8 @@
   "devDependencies": {
     "@types/node": "24.0.8",
     "@types/react": "19.1.8",
-    "electron": "^25.9.8",
-    "electron-packager": "^17.1.2",
     "eslint": "^9.30.0",
     "eslint-config-next": "^15.3.4",
     "typescript": "^5.8.3"
-  },
-  "bin": {
-    "app": "index.js"
   }
 }
