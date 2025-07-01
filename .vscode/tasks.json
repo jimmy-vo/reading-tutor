@@ -1,0 +1,14 @@
+{
+  "tasks": [
+    {
+      "label": "Run Docker",
+      "type": "shell",
+      "command": "docker compose up --build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}

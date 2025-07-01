@@ -1,6 +1,6 @@
 import React from 'react';
-import styles from './index.module.css';
-import { Content } from './models/content';
+import styles from '../index.module.css';
+import { Content } from '../models/interfaces';
 
 interface ContentProps {
   content: Content;

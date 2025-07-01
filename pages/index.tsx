@@ -1,18 +1,45 @@
-import ContentComponent from './main-content';
-import ControlButtons from './control-buttons';
-
-import styles from './index.module.css';
+import ContentComponent from '../components/main-content';
+import ControlButtons from '../components/control-buttons';
+import styles from '../index.module.css';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
-import { Content, QnA } from './models/content';
-import { EvaluationOutput } from './models/evaluation';
+import {
+  Content,
+  EvaluationInput,
+  EvaluationOutput,
+} from '../models/interfaces';
 
 export interface Answer {
   id: string;
   expectedAnswer: string;
   obtainedAnswer: string;
 }
+
+const fetchTopic = async (): Promise<string> => {
+  const topics = getTopicsFromLocalStorage();
+  const topicResponse = await axios.post('/api/generateTopic', topics);
+  const newTopic = (topicResponse.data as { topic: string }).topic;
+  addTopicToLocalStorage(newTopic);
+  return newTopic;
+};
+const storeTopicsInLocalStorage = (topics: string[]) => {
+  if (typeof window === 'undefined') return;
+
+  localStorage.setItem('topics', JSON.stringify(topics));
+};
+
+const getTopicsFromLocalStorage = (): string[] => {
+  if (typeof window === 'undefined') return [];
+
+  const topics = localStorage.getItem('topics');
+  return topics ? JSON.parse(topics) : [];
+};
+const addTopicToLocalStorage = (topic: string) => {
+  const topics = getTopicsFromLocalStorage();
+  topics.push(topic);
+  storeTopicsInLocalStorage(topics);
+};
+
 export default function Home() {
   const [content, setContent] = useState<Content | null>(null);
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -26,26 +53,23 @@ export default function Home() {
   const [totalQuestions, setTotalQuestions] = useState(0);
 
   useEffect(() => {
+  const fetchData = async () => {
     if (typeof window === 'undefined') return;
 
     const storedCorrectAnswers = localStorage.getItem('correctAnswers');
     setCorrectAnswers(
-      storedCorrectAnswers ? parseInt(storedCorrectAnswers, 0) : 0,
+      storedCorrectAnswers ? parseInt(storedCorrectAnswers, 10) : 0,
     );
 
     const storedTotalQuestions = localStorage.getItem('totalQuestions');
     setTotalQuestions(
-      storedTotalQuestions ? parseInt(storedTotalQuestions, 0) : 0,
+      storedTotalQuestions ? parseInt(storedTotalQuestions, 10) : 0,
     );
     setLocalStorageReady(true);
-  }, []);
-
-  useEffect(() => {
-    async function fetchContent() {
-      await fetchTopic();
-
+      const newTopic = await fetchTopic();
+      setTopic(newTopic);
       const contentResponse = await axios.post('/api/generateContent', {
-        topic: topic,
+        topic: newTopic,
       });
       setContent(contentResponse.data as Content);
       setAnswers(
@@ -55,36 +79,10 @@ export default function Home() {
           expectedAnswer: qna.answer,
         })),
       );
-    }
-    fetchContent();
+    };
+
+    fetchData();
   }, []);
-
-  const storeTopicsInLocalStorage = (topics: string[]) => {
-    if (typeof window === 'undefined') return;
-
-    localStorage.setItem('topics', JSON.stringify(topics));
-  };
-
-  const getTopicsFromLocalStorage = (): string[] => {
-    if (typeof window === 'undefined') return [];
-
-    const topics = localStorage.getItem('topics');
-    return topics ? JSON.parse(topics) : [];
-  };
-
-  const fetchTopic = async () => {
-    const topics = getTopicsFromLocalStorage();
-    const topicResponse = await axios.post('/api/generateTopic', topics);
-    const newTopic = (topicResponse.data as { topic: string }).topic;
-    addTopicToLocalStorage(newTopic);
-    setTopic(newTopic);
-  };
-
-  const addTopicToLocalStorage = (topic: string) => {
-    const topics = getTopicsFromLocalStorage();
-    topics.push(topic);
-    storeTopicsInLocalStorage(topics);
-  };
 
   const handleReset = async () => {
     setLoading(true);
@@ -142,11 +140,11 @@ export default function Home() {
   const handleSubmit = async () => {
     if (typeof window === 'undefined') return;
 
-    const evaluationInput = {
-      text: content?.text,
+    const evaluationInput: EvaluationInput = {
+      text: content?.text ?? '',
       qna: answers.map((answer) => ({
-        questionId: answer.id,
-        question: content?.qna.find((x) => x.id == answer.id)?.question,
+        id: answer.id,
+        question: content?.qna.find((x) => x.id == answer.id)?.question ?? '',
         obtainedAnswer: answer.obtainedAnswer,
         expectedAnswer: answer.expectedAnswer,
       })),

@@ -12,11 +12,12 @@
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "saoudrizwan.claude-dev"
       ]
     }
   },
-  "forwardPorts": [3000],
+  "forwardPorts": [3000, 5001],
   "postCreateCommand": "npm install",
   "workspaceFolder": "/workspace/app",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/app,type=bind,consistency=cached"

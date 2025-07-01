@@ -1,5 +1,6 @@
 # Node modules
 node_modules/
+dist/
 
 # Next.js build output
 .next/
@@ -18,9 +19,9 @@ yarn-error.log*
 jspm_packages/
 
 # IDE files
-.vscode/
 .idea/
 
 # Miscellaneous
 .DS_Store
 Thumbs.db
+app-win32-x64.zip

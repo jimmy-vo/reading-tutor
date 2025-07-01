@@ -1,7 +1,7 @@
-import client, { createCompletion } from '../../utils/openaiClient';
+import { createCompletion } from '../../utils/openaiClient';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-import { Content } from '../models/content';
+import { Content } from '../../models/interfaces';
 
 const example: Content = {
   text: "John went to school this morning, then he went home for lunch. After that he went back to school but he felt so bad. His mom kept him at home for the rest of the day",

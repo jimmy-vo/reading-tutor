@@ -1,20 +1,20 @@
 import { createCompletion } from '../../utils/openaiClient';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { EvaluationInput, EvaluationOutput } from '../models/evaluation';
+import { EvaluationInput, EvaluationOutput } from '../../models/interfaces';
 
 const examples: EvaluationOutput[] = [
   {
-    questionId: 'questionId1',
+    id: 'questionId1',
     suggestion: "",
     correct: true
   },
   {
-    questionId: 'questionId2',
+    id: 'questionId2',
     suggestion: "why the answer is incorrect",
     correct: false
   },
   {
-    questionId: 'questionId3',
+    id: 'questionId3',
     suggestion: "How the answer should look like",
     correct: true
   },
