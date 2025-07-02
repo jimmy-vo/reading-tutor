@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../index.module.css';
+import styles from './main-content.module.css';
 import { Content } from '../models/interfaces';
 
 interface ContentProps {
@@ -9,12 +9,14 @@ interface ContentProps {
     correct?: boolean;
     suggestion?: string;
   }[];
+  disabled: boolean;
   onAnswersChanged: (index: number, value: string) => void;
 }
 
 const MainContent: React.FC<ContentProps> = ({
   content,
   answers,
+  disabled,
   onAnswersChanged: onAnswersChanged,
 }) => {
   return (
@@ -25,6 +27,7 @@ const MainContent: React.FC<ContentProps> = ({
           <p className={styles.question}> {qna.question} </p>
           <input
             type="text"
+            disabled={disabled}
             value={answers[index]?.obtainedAnswer || ''}
             onChange={(e) => onAnswersChanged(index, e.target.value)}
             className={styles.input}

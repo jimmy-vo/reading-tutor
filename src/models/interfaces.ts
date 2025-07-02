@@ -8,6 +8,18 @@ export interface Content {
   text: string;
   qna: QnA[];
 }
+
+export interface Scores {
+  total: number;
+  correct: number;
+}
+
+export interface ContentSet {
+  content: Content;
+  topic: string;
+}
+
+
 export interface EvaluationOutput {
   id: string;
   suggestion: string;
