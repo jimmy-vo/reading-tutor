@@ -4,7 +4,7 @@ import {
   resetScore,
   getScores,
 } from '../services/score-service';
-import ControlButtons from '../components/control-buttons';
+import Scores from '../components/scores';
 import styles from './index.module.css';
 import { useState, useEffect } from 'react';
 import {
@@ -12,7 +12,7 @@ import {
   getContentSet,
   resetContent,
 } from '../services/content-service';
-import { ContentSet, Scores } from '../models/interfaces';
+import { ContentSet } from '../models/interfaces';
 
 export interface Answer {
   id: string;
@@ -27,7 +27,10 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [showNextButton, setShowNextButton] = useState(false);
   const [localStorageReady, setLocalStorageReady] = useState(false);
-  const [scores, setScores] = useState<Scores>({ total: 0, correct: 0 });
+  const [scores, setScores] = useState<{ total: number; correct: number }>({
+    total: 0,
+    correct: 0,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,20 +39,13 @@ export default function Home() {
       }
       setLocalStorageReady(true);
       setScores(getScores);
-      setContentSet(await getContentSet());
+      const newcontentSet = await getContentSet();
+      setContentSet(newcontentSet);
 
-      while (!contentSet) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      }
-      setAnswers(
-        contentSet!.content.qna.map(
-          (qna: { id: string; question: string; answer: string }) => ({
-            id: qna.id,
-            obtainedAnswer: '',
-            expectedAnswer: qna.answer,
-          }),
-        ),
-      );
+      // while (!contentSet) {
+      //   await new Promise((resolve) => setTimeout(resolve, 100));
+      // }
+      onContentSetUpdate(newcontentSet);
     };
 
     fetchData();
@@ -61,10 +57,7 @@ export default function Home() {
     setScores(resetScore());
     await handleNewTopic();
   };
-
-  const handleNewTopic = async () => {
-    setLoading(true);
-    const contentSet = await generateNewContentSet();
+  const onContentSetUpdate = (contentSet: ContentSet) => {
     setLoading(false);
     setContentSet(contentSet);
     setAnswers(
@@ -74,8 +67,14 @@ export default function Home() {
         expectedAnswer: qna.answer,
       })),
     );
-    setSubmitDisabled(false);
+    setSubmitDisabled(true);
     setShowNextButton(false);
+  };
+
+  const handleNewTopic = async () => {
+    setLoading(true);
+    const contentSet = await generateNewContentSet();
+    onContentSetUpdate(contentSet);
   };
 
   const handleAnswerChanged = (index: number, value: string) => {
@@ -83,7 +82,8 @@ export default function Home() {
     newAnswers[index] = { ...newAnswers[index], obtainedAnswer: value };
     setAnswers(newAnswers);
     setSubmitDisabled(
-      !newAnswers.every((answer) => answer.obtainedAnswer.trim() !== ''),
+      newAnswers.filter((answer) => answer.obtainedAnswer.trim().length > 0)
+        .length < newAnswers.length,
     );
   };
 
@@ -125,29 +125,22 @@ export default function Home() {
         <></>
       )}
       <div className={styles.container}>
-        <span className={styles.correctAnswers}>
-          Correct Answers: {scores.correct}/{scores.total}
-        </span>
-        <ControlButtons
-          showNextButton={showNextButton}
-          onNewTopicTap={handleNewTopic}
+        <Scores
+          className={styles.scoreContainer}
+          scores={scores}
           onResetTap={handleReset}
         />
         <ContentComponent
-          content={contentSet.content}
+          className={styles.mainContainer}
+          contentSet={contentSet}
           answers={answers}
-          disabled={showNextButton}
+          answerDisabled={showNextButton}
+          submitDisabled={isSubmitDisabled}
+          nextDisabled={!showNextButton}
           onAnswersChanged={handleAnswerChanged}
+          onSubmit={handleSubmit}
+          onNext={handleNewTopic}
         />
-        <div className={styles.submitButtonContainer}>
-          <button
-            className={styles.button}
-            onClick={handleSubmit}
-            disabled={isSubmitDisabled}
-          >
-            Submit
-          </button>
-        </div>
       </div>
     </div>
   );

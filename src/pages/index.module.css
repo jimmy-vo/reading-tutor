@@ -1,32 +1,6 @@
-.button {
-  background-color: #ff69b4;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 10px 20px;
-  font-size: 1em;
-  cursor: pointer;
-  margin: 10px;
-}
-
-.button:disabled {
-  background-color: #d3d3d3;
-  cursor: not-allowed;
-}
-
 .loading {
   color: #ff4500;
   font-size: 1.2em;
-  text-align: center;
-}
-
-.buttonsContainer {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-}
-
-.submitButtonContainer {
   text-align: center;
 }
 
@@ -59,4 +33,17 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+.mainContainer {
+  background-color: #f0f8ff;
+  padding: 50px 20px 20px;
+  border-radius: 10px;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  width: calc(100% - 60px - 40px);
+  margin: 0 30px;
+}
+
+.scoreContainer {
+  margin: 20px;
 }

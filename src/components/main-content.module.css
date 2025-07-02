@@ -1,15 +1,6 @@
-.container {
-  background-color: #f0f8ff;
-  padding: 50px 20px 20px;
-  border-radius: 10px;
-  font-family: 'Comic Sans MS', cursive, sans-serif;
-  max-width: 800px;
-  margin: auto;
-}
-
 .title {
   color: #ff69b4;
-  font-size: 2em;
+  font-size: 1.3em;
   text-align: center;
 }
 
@@ -41,4 +32,58 @@
   left: 20px;
   font-size: 1.2em;
   color: #00008b;
+}
+
+.textContainer {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.qnaContainer {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.divider {
+  width: 5px;
+  margin: 10px;
+  background-color: #000000;
+  cursor: ew-resize;
+}
+
+.button:disabled {
+  background-color: #d3d3d3;
+  cursor: not-allowed;
+}
+
+.buttonContainer {
+  text-align: center;
+}
+
+.button {
+  background-color: #ff69b4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  margin: 10px;
+}
+
+.responsiveContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .responsiveContainer {
+    flex-direction: row;
+  }
+
+  .textContainer,
+  .qnaContainer {
+    width: auto;
+    max-height: 100vh;
+  }
 }
