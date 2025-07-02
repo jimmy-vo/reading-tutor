@@ -108,6 +108,7 @@ export default function Home() {
       suggestion: evaluationResult[index].suggestion,
     }));
     setAnswers(updatedAnswers);
+    setScores(getScores);
     setShowNextButton(true);
   };
 
