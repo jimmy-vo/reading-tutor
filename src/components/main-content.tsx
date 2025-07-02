@@ -58,8 +58,14 @@ const MainContent: React.FC<ContentProps> = ({
 
     const handleMouseMove = (e: MouseEvent) => {
       if (textContainerRef.current && qnaContainerRef.current) {
-        const newWidth =
-          e.clientX - textContainerRef.current.getBoundingClientRect().left;
+        const responsiveContainerWidth =
+          textContainerRef.current.parentElement?.getBoundingClientRect()
+            .width || 0;
+        const maxWidth = responsiveContainerWidth - 100; // 30px margin on each side
+        const newWidth = Math.min(
+          e.clientX - textContainerRef.current.getBoundingClientRect().left,
+          maxWidth,
+        );
         textContainerRef.current.style.width = `${newWidth}px`;
         textContainerRef.current.style.flex = `none`;
       }
