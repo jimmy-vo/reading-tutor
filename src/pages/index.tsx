@@ -9,6 +9,7 @@ import styles from './index.module.css';
 import { useState, useEffect } from 'react';
 import {
   generateNewContentSet,
+  getContentSet,
   resetContent,
 } from '../services/content-service';
 import { ContentSet, Scores } from '../models/interfaces';
@@ -35,7 +36,7 @@ export default function Home() {
       }
       setLocalStorageReady(true);
       setScores(getScores);
-      setContentSet(await generateNewContentSet());
+      setContentSet(await getContentSet());
 
       while (!contentSet) {
         await new Promise((resolve) => setTimeout(resolve, 100));

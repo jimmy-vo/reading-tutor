@@ -3,14 +3,10 @@ import { Content, ContentSet } from '../models/interfaces';
 
 
 const storeTopicsInLocalStorage = (topics: string[]) => {
-  if (typeof window === 'undefined') return;
-
   localStorage.setItem('topics', JSON.stringify(topics));
 };
 
 const getTopicsFromLocalStorage = (): string[] => {
-  if (typeof window === 'undefined') return [];
-
   const topics = localStorage.getItem('topics');
   return topics ? JSON.parse(topics) : [];
 };
@@ -64,10 +60,39 @@ const generateNewContentSet = async (): Promise<ContentSet> => {
   addTopicToLocalStorage(topic);
 
   const content = await fetchContent(topic);
-  return {
+  const contentSet: ContentSet = {
     content: content,
     topic: topic,
   };
+
+  localStorage.setItem('contentSet', JSON.stringify(contentSet));
+  return contentSet;
+}
+
+
+const getContentSet = async (): Promise<ContentSet> => {
+  const cachedContentSetString = localStorage.getItem('contentSet');
+
+  const cachedContentSet = cachedContentSetString ? JSON.parse(cachedContentSetString) : null;
+
+  if (!cachedContentSet) return await generateNewContentSet();
+
+  if (
+    typeof cachedContentSet.content === 'object' &&
+    typeof cachedContentSet.topic === 'string' &&
+    typeof cachedContentSet.content.text === 'string' &&
+    Array.isArray(cachedContentSet.content.qna) &&
+    cachedContentSet.content.qna.every(
+      (qna: any) =>
+        typeof qna.id === 'string' &&
+        typeof qna.question === 'string' &&
+        typeof qna.answer === 'string'
+    )
+  ) {
+    return cachedContentSet;
+  }
+
+  return await generateNewContentSet();
 }
 
 const resetContent = async () => {
@@ -76,4 +101,4 @@ const resetContent = async () => {
 
 
 
-export { generateNewContentSet, resetContent };
+export { getContentSet, generateNewContentSet, resetContent };
