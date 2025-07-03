@@ -1,11 +1,13 @@
 .challengesContainer {
   flex: 1;
   overflow-y: auto;
+  user-select: none;
 }
 
 .textContainer {
   flex: 1;
   overflow-y: auto;
+  user-select: none;
 }
 
 .divider {
@@ -13,11 +15,13 @@
   margin: 10px;
   background-color: #000000;
   cursor: ew-resize;
+  user-select: none;
 }
 
 .responsiveContainer {
   display: flex;
   flex-direction: column;
+  user-select: none;
 }
 
 @media (min-width: 768px) {

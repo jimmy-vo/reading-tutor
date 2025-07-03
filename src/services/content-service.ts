@@ -1,22 +1,7 @@
 import axios from 'axios';
-import { Content } from '../models/dto';
-import { ContentSet } from '../models/view';
-
-
-const storeTopicsInLocalStorage = (topics: string[]) => {
-  localStorage.setItem('topics', JSON.stringify(topics));
-};
-
-const getTopicsFromLocalStorage = (): string[] => {
-  const topics = localStorage.getItem('topics');
-  return topics ? JSON.parse(topics) : [];
-};
-
-const addTopicToLocalStorage = (topic: string) => {
-  const topics = getTopicsFromLocalStorage();
-  topics.push(topic);
-  storeTopicsInLocalStorage(topics);
-};
+import { Content, EvaluationOutput } from '../models/dto';
+import { Challenge, ContentSet } from '../models/view';
+import { getHistoryFromStorage } from './history-service';
 
 const fetchContent = async (topic: string): Promise<Content> => {
   let attempts = 0;
@@ -34,6 +19,7 @@ const fetchContent = async (topic: string): Promise<Content> => {
 
   throw new Error('Failed to fetch content after 3 attempts');
 };
+
 
 const fetchTopic = async (topics: string[]): Promise<string> => {
   let attempts = 0;
@@ -55,10 +41,39 @@ const fetchTopic = async (topics: string[]): Promise<string> => {
   throw new Error('Failed to fetch topic after 3 attempts');
 };
 
-const generateNewContentSet = async (): Promise<ContentSet> => {
-  const topics = getTopicsFromLocalStorage();
+export const verifyAnswers = async (contentSet: ContentSet): Promise<Challenge[]> => {
+  const maxRetries = 3;
+  let attempt = 0;
+
+  while (attempt < maxRetries) {
+    try {
+      const response = await axios.post('/api/verifyAnswers', {
+        text: contentSet.text,
+        qna: contentSet.challenges.map(x => ({
+          id: x.id,
+          question: x.question,
+          obtainedAnswer: x.answer,
+          expectedAnswer: x.explaination,
+        }))
+      });
+      return contentSet.challenges.map(x => {
+        const entry = (response.data as EvaluationOutput[]).find(e => e.id === x.id)!
+        x.correct = entry.correct;
+        x.explaination = entry.suggestion;
+        return x;
+      })
+    } catch (error) {
+      console.error(error)
+      attempt++;
+    }
+  }
+  throw new Error('Failed to verify Answers after 3 attempts');
+}
+
+
+export const generateNewContent = async (): Promise<ContentSet> => {
+  const topics = getHistoryFromStorage().map(x => x.topic);
   const topic = await fetchTopic(topics);
-  addTopicToLocalStorage(topic);
 
   const content = await fetchContent(topic);
   const contentSet: ContentSet = {
@@ -79,12 +94,12 @@ const generateNewContentSet = async (): Promise<ContentSet> => {
 }
 
 
-const getContentSet = async (): Promise<ContentSet> => {
+export const getActiveContentStorage = async (): Promise<ContentSet> => {
   const cachedContentSetString = localStorage.getItem('contentSet');
 
   const cachedContentSet: ContentSet | null = cachedContentSetString ? JSON.parse(cachedContentSetString) : null;
 
-  if (!cachedContentSet) return await generateNewContentSet();
+  if (!cachedContentSet) return await generateNewContent();
 
   if (
     typeof cachedContentSet.topic === 'string' &&
@@ -100,13 +115,9 @@ const getContentSet = async (): Promise<ContentSet> => {
     return cachedContentSet;
   }
 
-  return await generateNewContentSet();
+  return await generateNewContent();
 }
 
-const resetContent = async () => {
-  storeTopicsInLocalStorage([]);
-}
+export const removeActiveContentStorage = () => localStorage.removeItem('contentSet');
 
 
-
-export { getContentSet, generateNewContentSet, resetContent };

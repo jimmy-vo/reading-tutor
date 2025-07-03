@@ -7,20 +7,24 @@
   font-size: 1em;
   cursor: pointer;
   margin: 10px;
+  user-select: none;
 }
 
 .button:disabled {
   background-color: #d3d3d3;
   cursor: not-allowed;
+  user-select: none;
 }
 
 .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  user-select: none;
 }
 
 .scores {
   flex-grow: 1;
   font-weight: bold;
+  user-select: none;
 }

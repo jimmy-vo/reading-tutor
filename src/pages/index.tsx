@@ -1,14 +1,17 @@
 import ContentComponent from '../components/main-content';
-import { getReport, verifyAnswers } from '../services/report-service';
+import { getHistoryFromStorage } from '../services/history-service';
 import styles from './index.module.css';
 import { useState, useEffect, useRef } from 'react';
 import {
-  generateNewContentSet,
-  getContentSet,
-  resetContent,
+  generateNewContent,
+  getActiveContentStorage,
+  verifyAnswers,
 } from '../services/content-service';
 import { ContentSet } from '../models/view';
-import { addReport, resetReport } from '../services/report-service';
+import {
+  addHistoryToStorage,
+  resetHistoryStorage,
+} from '../services/history-service';
 import { SideBar } from '../components/sidebar';
 
 export interface Answer {
@@ -31,11 +34,11 @@ export default function Home() {
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
       setLocalStorageReady(true);
-      const newcontentSet = await getContentSet();
+      const newcontentSet = await getActiveContentStorage();
       setActiveItem(newcontentSet);
       onPostCreate(newcontentSet);
 
-      const reportData = await getReport();
+      const reportData = await getHistoryFromStorage();
       setHistory(reportData);
     };
 
@@ -68,8 +71,7 @@ export default function Home() {
   const handleReset = async () => {
     setLoading(true);
     setDrawerOpen(false);
-    await resetContent();
-    resetReport();
+    resetHistoryStorage();
     setHistory([]);
     await handleNext();
   };
@@ -82,7 +84,7 @@ export default function Home() {
 
   const handleNext = async () => {
     setLoading(true);
-    const contentSet = await generateNewContentSet();
+    const contentSet = await generateNewContent();
     onPostCreate(contentSet);
   };
 
@@ -97,9 +99,9 @@ export default function Home() {
       topic: activeItem.topic,
       challenges: evaluationResult,
     };
-    addReport(newItem);
+    addHistoryToStorage(newItem);
     setActiveItem(newItem);
-    setHistory(await getReport());
+    setHistory(await getHistoryFromStorage());
   };
 
   const toggleDrawer = () => {
@@ -111,42 +113,42 @@ export default function Home() {
     setDrawerOpen(false);
   };
 
-  if (!activeItem) return <div>Loading...</div>;
-
   return (
     <div>
-      {(!localStorageReady || loading) && (
+      {(!localStorageReady || loading || !activeItem) && (
         <div className={styles.loadingOverlay}>
           <div className={styles.loadingSpinner}></div>
         </div>
       )}
-      <div className={styles.container}>
-        <button className={styles.hamburgerButton} onClick={toggleDrawer}>
-          ☰
-        </button>
-        <div
-          ref={drawerRef}
-          className={`${styles.drawer} ${
-            isDrawerOpen ? styles.drawerOpen : ''
-          }`}
-        >
-          <SideBar
-            onSelect={handleSelect}
-            onResetTap={handleReset}
-            history={history}
-            current={activeItem}
+      {activeItem && (
+        <div className={styles.container}>
+          <button className={styles.hamburgerButton} onClick={toggleDrawer}>
+            ☰
+          </button>
+          <div
+            ref={drawerRef}
+            className={`${styles.drawer} ${
+              isDrawerOpen ? styles.drawerOpen : ''
+            }`}
+          >
+            <SideBar
+              onSelect={handleSelect}
+              onResetTap={handleReset}
+              history={history}
+              current={activeItem}
+            />
+          </div>
+          <ContentComponent
+            className={styles.mainContainer}
+            contentSet={selectedItem!}
+            isNextDisabled={
+              !activeItem.challenges.every((x) => x.correct !== undefined)
+            }
+            onSubmit={handleSubmit}
+            onNext={handleNext}
           />
         </div>
-        <ContentComponent
-          className={styles.mainContainer}
-          contentSet={selectedItem!}
-          isNextDisabled={
-            !activeItem.challenges.every((x) => x.correct !== undefined)
-          }
-          onSubmit={handleSubmit}
-          onNext={handleNext}
-        />
-      </div>
+      )}
     </div>
   );
 }

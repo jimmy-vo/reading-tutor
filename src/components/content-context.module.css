@@ -2,10 +2,12 @@
   color: #ff69b4;
   font-size: 1.3em;
   text-align: center;
+  user-select: none;
 }
 
 .paragraph {
   color: #00008b;
   font-size: 1.2em;
   margin-bottom: 20px;
+  user-select: none;
 }
