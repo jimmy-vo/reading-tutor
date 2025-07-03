@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Content, ContentSet } from '../models/interfaces';
+import { Content, ContentSet } from '../models/dto';
 
 
 const storeTopicsInLocalStorage = (topics: string[]) => {

@@ -1,6 +1,6 @@
 import { createCompletion } from '../../utils/openaiClient';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { EvaluationInput, EvaluationOutput } from '../../models/interfaces';
+import { EvaluationInput, EvaluationOutput } from '../../models/dto';
 
 const examples: EvaluationOutput[] = [
   {

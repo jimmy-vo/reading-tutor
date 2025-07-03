@@ -1,10 +1,5 @@
 import ContentComponent from '../components/main-content';
-import {
-  verifyAnswers,
-  resetScore,
-  getScores,
-} from '../services/score-service';
-import Scores from '../components/scores';
+import { getReport, verifyAnswers } from '../services/report-service';
 import styles from './index.module.css';
 import { useState, useEffect } from 'react';
 import {
@@ -12,7 +7,10 @@ import {
   getContentSet,
   resetContent,
 } from '../services/content-service';
-import { ContentSet } from '../models/interfaces';
+import { ContentSet } from '../models/view';
+import { addReport, resetReport } from '../services/report-service';
+import ReadingReports from '../components/reading-report';
+import { ReadingReport } from '../models/view';
 
 export interface Answer {
   id: string;
@@ -21,6 +19,7 @@ export interface Answer {
 }
 
 export default function Home() {
+  const [reports, setReports] = useState<ReadingReport[]>([]);
   const [contentSet, setContentSet] = useState<ContentSet>();
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [isSubmitDisabled, setSubmitDisabled] = useState(false);
@@ -31,6 +30,7 @@ export default function Home() {
     total: 0,
     correct: 0,
   });
+  const [isDrawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,14 +38,12 @@ export default function Home() {
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
       setLocalStorageReady(true);
-      setScores(getScores);
       const newcontentSet = await getContentSet();
       setContentSet(newcontentSet);
-
-      // while (!contentSet) {
-      //   await new Promise((resolve) => setTimeout(resolve, 100));
-      // }
       onContentSetUpdate(newcontentSet);
+
+      const reportData = await getReport();
+      setReports(reportData);
     };
 
     fetchData();
@@ -54,9 +52,11 @@ export default function Home() {
   const handleReset = async () => {
     setLoading(true);
     await resetContent();
-    setScores(resetScore());
+    resetReport();
+    setReports([]);
     await handleNewTopic();
   };
+
   const onContentSetUpdate = (contentSet: ContentSet) => {
     setLoading(false);
     setContentSet(contentSet);
@@ -109,8 +109,25 @@ export default function Home() {
       suggestion: evaluationResult[index].suggestion,
     }));
     setAnswers(updatedAnswers);
-    setScores(getScores);
     setShowNextButton(true);
+    addReport(
+      contentSet,
+      updatedAnswers.map((x) => ({
+        id: x.id,
+        suggestion: x.suggestion,
+        answer: x.obtainedAnswer,
+        correct: x.correct,
+      })),
+    );
+    setReports(await getReport());
+  };
+
+  const toggleDrawer = () => {
+    setDrawerOpen(!isDrawerOpen);
+  };
+
+  const handleSelect = (topic: string) => {
+    console.log(`Selected topic: ${topic}`);
   };
 
   if (!contentSet) return <div>Loading...</div>;
@@ -125,11 +142,20 @@ export default function Home() {
         <></>
       )}
       <div className={styles.container}>
-        <Scores
-          className={styles.scoreContainer}
-          scores={scores}
-          onResetTap={handleReset}
-        />
+        <button className={styles.hamburgerButton} onClick={toggleDrawer}>
+          ☰
+        </button>
+        <div
+          className={`${styles.drawer} ${
+            isDrawerOpen ? styles.drawerOpen : ''
+          }`}
+        >
+          <ReadingReports
+            onSelect={handleSelect}
+            onResetTap={handleReset}
+            reports={reports}
+          />
+        </div>
         <ContentComponent
           className={styles.mainContainer}
           contentSet={contentSet}

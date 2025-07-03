@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const prompt = `${Date.now()}
 Generate a NEW TOPIC from the following list of EXISTING TOPICS. 
 The NEW TOPIC must be limited to 10 of simple words and appropriate for kids and doesn't duplicate any of the EXISTING TOPICS. 
-The NEW TOPIC must folow format:
+The NEW TOPIC must folow format starting with 'NEW TOPIC:\n':
 NEW TOPIC:\ntopic-content
 
 EXISTING TOPICS: ${JSON.stringify(topics, null, 0)}

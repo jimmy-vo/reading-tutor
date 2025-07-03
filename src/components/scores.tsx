@@ -1,18 +1,25 @@
 import React from 'react';
 import styles from './scores.module.css';
+import { ReadingReport } from '../models/view';
 
 interface ScoresProps {
   className?: string;
   onResetTap: () => void;
-  scores: { correct: number; total: number };
+  reports: ReadingReport[];
 }
 
-const Scores: React.FC<ScoresProps> = ({ onResetTap, scores, className }) => {
+const Scores: React.FC<ScoresProps> = ({ onResetTap, reports, className }) => {
+  const answerResults = reports
+    .map((x) => x.evaluation)
+    .flat()
+    .map((x) => x.correct);
+  const correct = answerResults.filter((x) => x).length;
+  const total = answerResults.length;
   return (
     <div className={className}>
       <div className={styles.container}>
         <span className={styles.scores}>
-          Correct Answers: {scores.correct}/{scores.total}
+          Correct Answers: {correct}/{total}
         </span>
         <button className={styles.button} onClick={onResetTap}>
           Reset

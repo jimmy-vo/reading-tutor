@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styles from './main-content.module.css';
-import { Content, ContentSet } from '../models/interfaces';
+import { ContentSet } from '../models/view';
 
 interface ContentProps {
   className?: string;
