@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { Content, ContentSet } from '../models/dto';
+import { Content } from '../models/dto';
+import { ContentSet } from '../models/view';
 
 
 const storeTopicsInLocalStorage = (topics: string[]) => {
@@ -61,8 +62,16 @@ const generateNewContentSet = async (): Promise<ContentSet> => {
 
   const content = await fetchContent(topic);
   const contentSet: ContentSet = {
-    content: content,
     topic: topic,
+    text: content.text,
+    challenges: content.qna.map(x => ({
+      id: x.id,
+      explaination: "",
+      question: x.question,
+      answer: "",
+      expected: x.answer,
+      correct: undefined,
+    }))
   };
 
   localStorage.setItem('contentSet', JSON.stringify(contentSet));
@@ -73,20 +82,19 @@ const generateNewContentSet = async (): Promise<ContentSet> => {
 const getContentSet = async (): Promise<ContentSet> => {
   const cachedContentSetString = localStorage.getItem('contentSet');
 
-  const cachedContentSet = cachedContentSetString ? JSON.parse(cachedContentSetString) : null;
+  const cachedContentSet: ContentSet | null = cachedContentSetString ? JSON.parse(cachedContentSetString) : null;
 
   if (!cachedContentSet) return await generateNewContentSet();
 
   if (
-    typeof cachedContentSet.content === 'object' &&
     typeof cachedContentSet.topic === 'string' &&
-    typeof cachedContentSet.content.text === 'string' &&
-    Array.isArray(cachedContentSet.content.qna) &&
-    cachedContentSet.content.qna.every(
+    typeof cachedContentSet.text === 'string' &&
+    Array.isArray(cachedContentSet.challenges) &&
+    cachedContentSet.challenges.every(
       (qna: any) =>
         typeof qna.id === 'string' &&
         typeof qna.question === 'string' &&
-        typeof qna.answer === 'string'
+        typeof qna.expected === 'string'
     )
   ) {
     return cachedContentSet;

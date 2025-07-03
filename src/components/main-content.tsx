@@ -1,38 +1,30 @@
 import React, { useRef, useEffect, useState } from 'react';
+import ContentContext from './content-context';
+import ContentChallenges from './content-challenges';
 import styles from './main-content.module.css';
-import { ContentSet } from '../models/view';
+import { ContentController } from './content-controller';
+import { Challenge, ContentSet } from '../models/view';
 
 interface ContentProps {
   className?: string;
   contentSet: ContentSet;
-  answers: {
-    obtainedAnswer: string;
-    correct?: boolean;
-    suggestion?: string;
-  }[];
-  answerDisabled: boolean;
-  submitDisabled: boolean;
-  nextDisabled: boolean;
-  onSubmit: () => void;
+  isNextDisabled: boolean;
+  onSubmit: (contentSet: ContentSet) => void;
   onNext: () => void;
-  onAnswersChanged: (index: number, value: string) => void;
 }
 
 const MainContent: React.FC<ContentProps> = ({
   contentSet,
-  answers,
-  answerDisabled,
-  submitDisabled,
-  nextDisabled,
+  isNextDisabled,
   onSubmit,
   onNext,
-  onAnswersChanged,
   className,
 }) => {
   const textContainerRef = useRef<HTMLDivElement>(null);
-  const qnaContainerRef = useRef<HTMLDivElement>(null);
+  const challengesContainerRef = useRef<HTMLDivElement>(null);
   const dividerRef = useRef<HTMLDivElement>(null);
 
+  const [isSubmitDisabled, setSubmitDisabled] = useState(true);
   useEffect(() => {
     const observer = new ResizeObserver((entries) => {
       for (let entry of entries) {
@@ -57,15 +49,21 @@ const MainContent: React.FC<ContentProps> = ({
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (textContainerRef.current && qnaContainerRef.current) {
+      if (textContainerRef.current && challengesContainerRef.current) {
         const responsiveContainerWidth =
           textContainerRef.current.parentElement?.getBoundingClientRect()
             .width || 0;
-        const maxWidth = responsiveContainerWidth - 100; // 30px margin on each side
-        const newWidth = Math.min(
-          e.clientX - textContainerRef.current.getBoundingClientRect().left,
-          maxWidth,
-        );
+
+        const minWidth = responsiveContainerWidth / 4; // 30px margin on each side
+        const maxWidth = minWidth * 3; // 30px margin on each side
+        let newWidth =
+          e.clientX - textContainerRef.current.getBoundingClientRect().left;
+
+        if (newWidth < minWidth) {
+          newWidth = minWidth;
+        } else if (newWidth > maxWidth) {
+          newWidth = maxWidth;
+        }
         textContainerRef.current.style.width = `${newWidth}px`;
         textContainerRef.current.style.flex = `none`;
       }
@@ -88,56 +86,39 @@ const MainContent: React.FC<ContentProps> = ({
         dividerRef.current.removeEventListener('mousedown', handleMouseDown);
       }
     };
-  }, []);
+  }, [contentSet, isNextDisabled]);
+
+  const handleAnswerChanged = (value: Challenge[]) => {
+    contentSet.challenges = value;
+    setSubmitDisabled(
+      contentSet.challenges.filter((x) => x.answer.trim().length > 0).length <
+        contentSet.challenges.length,
+    );
+  };
+
+  const handleSubmit = async () => {
+    setSubmitDisabled(true);
+    await onSubmit(contentSet);
+  };
 
   return (
     <div className={`${styles.responsiveContainer} ${className}`}>
-      <div className={styles.textContainer} ref={textContainerRef}>
-        <p className={styles.title}> {contentSet.topic} </p>
-        <p className={styles.paragraph}> {contentSet.content.text} </p>
+      <div ref={textContainerRef} className={styles.textContainer}>
+        <ContentContext topic={contentSet.topic} text={contentSet.text} />
       </div>
       <div className={styles.divider} ref={dividerRef} />
-      <div className={styles.qnaContainer} ref={qnaContainerRef}>
-        {contentSet.content.qna.map((qna, index) => (
-          <div key={qna.id} className={styles.qnaItem}>
-            <p className={styles.question}> {qna.question} </p>
-            <input
-              type="text"
-              disabled={answerDisabled}
-              value={answers[index]?.obtainedAnswer || ''}
-              onChange={(e) => onAnswersChanged(index, e.target.value)}
-              className={styles.input}
-            />
-            {answers[index]?.correct !== undefined && (
-              <span>
-                {answers[index].correct ? (
-                  <span style={{ color: 'green' }}>✔️</span>
-                ) : (
-                  <span style={{ color: 'red' }}>❌</span>
-                )}
-              </span>
-            )}
-            <p style={{ color: 'blue' }}>{answers[index]?.suggestion || ' '}</p>
-          </div>
-        ))}
-
-        <div className={styles.buttonContainer}>
-          <button
-            className={styles.button}
-            onClick={onSubmit}
-            disabled={submitDisabled}
-          >
-            Submit
-          </button>
-
-          <button
-            className={styles.button}
-            onClick={onNext}
-            disabled={nextDisabled}
-          >
-            Next
-          </button>
-        </div>
+      <div className={styles.challengesContainer} ref={challengesContainerRef}>
+        <ContentChallenges
+          onChanged={handleAnswerChanged}
+          challenges={contentSet.challenges}
+        />
+        <ContentController
+          className={styles.buttonContainer}
+          onSubmit={handleSubmit}
+          onNext={onNext}
+          isSubmitDisabled={isSubmitDisabled}
+          isNextDisabled={isNextDisabled}
+        />
       </div>
     </div>
   );

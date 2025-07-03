@@ -1,7 +1,7 @@
 import ContentComponent from '../components/main-content';
 import { getReport, verifyAnswers } from '../services/report-service';
 import styles from './index.module.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   generateNewContentSet,
   getContentSet,
@@ -9,8 +9,7 @@ import {
 } from '../services/content-service';
 import { ContentSet } from '../models/view';
 import { addReport, resetReport } from '../services/report-service';
-import ReadingReports from '../components/reading-report';
-import { ReadingReport } from '../models/view';
+import { SideBar } from '../components/sidebar';
 
 export interface Answer {
   id: string;
@@ -19,17 +18,11 @@ export interface Answer {
 }
 
 export default function Home() {
-  const [reports, setReports] = useState<ReadingReport[]>([]);
-  const [contentSet, setContentSet] = useState<ContentSet>();
-  const [answers, setAnswers] = useState<Answer[]>([]);
-  const [isSubmitDisabled, setSubmitDisabled] = useState(false);
+  const [history, setHistory] = useState<ContentSet[]>([]);
+  const [activeItem, setActiveItem] = useState<ContentSet>();
+  const [selectedItem, setSelectedItem] = useState<ContentSet>();
   const [loading, setLoading] = useState(false);
-  const [showNextButton, setShowNextButton] = useState(false);
   const [localStorageReady, setLocalStorageReady] = useState(false);
-  const [scores, setScores] = useState<{ total: number; correct: number }>({
-    total: 0,
-    correct: 0,
-  });
   const [isDrawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
@@ -39,87 +32,74 @@ export default function Home() {
       }
       setLocalStorageReady(true);
       const newcontentSet = await getContentSet();
-      setContentSet(newcontentSet);
-      onContentSetUpdate(newcontentSet);
+      setActiveItem(newcontentSet);
+      onPostCreate(newcontentSet);
 
       const reportData = await getReport();
-      setReports(reportData);
+      setHistory(reportData);
     };
 
     fetchData();
   }, []);
 
+  const drawerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        drawerRef.current &&
+        !drawerRef.current.contains(event.target as Node)
+      ) {
+        setDrawerOpen(false);
+      }
+    };
+
+    if (isDrawerOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDrawerOpen]);
+
   const handleReset = async () => {
     setLoading(true);
+    setDrawerOpen(false);
     await resetContent();
     resetReport();
-    setReports([]);
-    await handleNewTopic();
+    setHistory([]);
+    await handleNext();
   };
 
-  const onContentSetUpdate = (contentSet: ContentSet) => {
+  const onPostCreate = (contentSet: ContentSet) => {
     setLoading(false);
-    setContentSet(contentSet);
-    setAnswers(
-      contentSet.content.qna.map((qna) => ({
-        id: qna.id,
-        obtainedAnswer: '',
-        expectedAnswer: qna.answer,
-      })),
-    );
-    setSubmitDisabled(true);
-    setShowNextButton(false);
+    setActiveItem(contentSet);
+    setSelectedItem(contentSet);
   };
 
-  const handleNewTopic = async () => {
+  const handleNext = async () => {
     setLoading(true);
     const contentSet = await generateNewContentSet();
-    onContentSetUpdate(contentSet);
+    onPostCreate(contentSet);
   };
 
-  const handleAnswerChanged = (index: number, value: string) => {
-    const newAnswers = [...answers];
-    newAnswers[index] = { ...newAnswers[index], obtainedAnswer: value };
-    setAnswers(newAnswers);
-    setSubmitDisabled(
-      newAnswers.filter((answer) => answer.obtainedAnswer.trim().length > 0)
-        .length < newAnswers.length,
-    );
-  };
+  const handleSubmit = async (newContentSet: ContentSet) => {
+    if (!activeItem) return;
 
-  const handleSubmit = async () => {
-    if (!contentSet) return;
-    setSubmitDisabled(true);
     setLoading(true);
-    const evaluationResult = await verifyAnswers({
-      text: contentSet.content.text ?? '',
-      qna: answers.map((answer) => ({
-        id: answer.id,
-        question:
-          contentSet.content.qna.find((x) => x.id == answer.id)?.question ?? '',
-        obtainedAnswer: answer.obtainedAnswer,
-        expectedAnswer: answer.expectedAnswer,
-      })),
-    });
+    const evaluationResult = await verifyAnswers(newContentSet);
     setLoading(false);
-
-    const updatedAnswers = answers.map((answer, index) => ({
-      ...answer,
-      correct: evaluationResult[index].correct,
-      suggestion: evaluationResult[index].suggestion,
-    }));
-    setAnswers(updatedAnswers);
-    setShowNextButton(true);
-    addReport(
-      contentSet,
-      updatedAnswers.map((x) => ({
-        id: x.id,
-        suggestion: x.suggestion,
-        answer: x.obtainedAnswer,
-        correct: x.correct,
-      })),
-    );
-    setReports(await getReport());
+    const newItem = {
+      text: activeItem.text,
+      topic: activeItem.topic,
+      challenges: evaluationResult,
+    };
+    addReport(newItem);
+    setActiveItem(newItem);
+    setHistory(await getReport());
   };
 
   const toggleDrawer = () => {
@@ -127,45 +107,44 @@ export default function Home() {
   };
 
   const handleSelect = (topic: string) => {
-    console.log(`Selected topic: ${topic}`);
+    setSelectedItem([...history, activeItem!].find((x) => x.topic === topic));
+    setDrawerOpen(false);
   };
 
-  if (!contentSet) return <div>Loading...</div>;
+  if (!activeItem) return <div>Loading...</div>;
 
   return (
     <div>
-      {!localStorageReady || loading ? (
+      {(!localStorageReady || loading) && (
         <div className={styles.loadingOverlay}>
           <div className={styles.loadingSpinner}></div>
         </div>
-      ) : (
-        <></>
       )}
       <div className={styles.container}>
         <button className={styles.hamburgerButton} onClick={toggleDrawer}>
           ☰
         </button>
         <div
+          ref={drawerRef}
           className={`${styles.drawer} ${
             isDrawerOpen ? styles.drawerOpen : ''
           }`}
         >
-          <ReadingReports
+          <SideBar
             onSelect={handleSelect}
             onResetTap={handleReset}
-            reports={reports}
+            history={history}
+            current={activeItem}
           />
         </div>
         <ContentComponent
           className={styles.mainContainer}
-          contentSet={contentSet}
-          answers={answers}
-          answerDisabled={showNextButton}
-          submitDisabled={isSubmitDisabled}
-          nextDisabled={!showNextButton}
-          onAnswersChanged={handleAnswerChanged}
+          contentSet={selectedItem!}
+          isNextDisabled={
+            !activeItem.challenges.every((x) => x.correct !== undefined)
+          }
           onSubmit={handleSubmit}
-          onNext={handleNewTopic}
+          onNext={handleNext}
         />
       </div>
     </div>

@@ -1,16 +1,16 @@
 import React from 'react';
 import styles from './scores.module.css';
-import { ReadingReport } from '../models/view';
+import { ContentSet } from '../models/view';
 
 interface ScoresProps {
   className?: string;
   onResetTap: () => void;
-  reports: ReadingReport[];
+  reports: ContentSet[];
 }
 
 const Scores: React.FC<ScoresProps> = ({ onResetTap, reports, className }) => {
   const answerResults = reports
-    .map((x) => x.evaluation)
+    .map((x) => x.challenges)
     .flat()
     .map((x) => x.correct);
   const correct = answerResults.filter((x) => x).length;

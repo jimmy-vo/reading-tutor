@@ -1,0 +1,48 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.historyContainer {
+  list-style-type: none;
+  padding: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1 1 auto;
+}
+
+.scoreContainer {
+  margin-bottom: 20px;
+}
+
+.historyItem {
+  border: 1px solid #00008b;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.historyItem:hover {
+  background-color: #f0f8ff;
+}
+
+.topic {
+  color: #ff4500;
+  font-size: 1.1em;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 10px;
+}
+
+.score {
+  color: #000000;
+  font-size: 1.1em;
+}

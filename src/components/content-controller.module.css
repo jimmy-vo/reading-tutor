@@ -1,0 +1,22 @@
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.button {
+  background-color: #ff69b4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  margin: 10px;
+}
+
+.button:disabled {
+  background-color: #d3d3d3;
+  cursor: not-allowed;
+}

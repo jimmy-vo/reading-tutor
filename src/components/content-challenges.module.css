@@ -1,0 +1,20 @@
+.explaination {
+  font-size: 0.8em;
+  color: #3c706e;
+  margin-bottom: 10px;
+}
+
+.question {
+  color: #ff4500;
+  font-size: 1.1em;
+  margin-bottom: 10px;
+}
+
+.input {
+  border: 2px solid #00008b;
+  border-radius: 5px;
+  padding: 5px;
+  font-size: 1em;
+  width: calc(100% - 40px);
+  margin-right: 10px;
+}

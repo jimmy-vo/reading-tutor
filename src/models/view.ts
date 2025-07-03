@@ -1,51 +1,15 @@
-export interface QnA {
-  id: string;
-  question: string;
-  answer: string;
-}
-
-export interface Content {
-  text: string;
-  qna: QnA[];
-}
-
-export interface Scores {
-  total: number;
-  correct: number;
-}
 
 export interface ContentSet {
-  content: Content;
   topic: string;
-}
-
-
-export interface EvaluationOutput {
-  id: string;
-  suggestion: string;
-  correct: boolean;
-}
-
-export interface EvaluationInputQnA {
-  id: string;
-  question: string;
-  obtainedAnswer: string;
-  expectedAnswer: string;
-}
-
-export interface EvaluationInput {
   text: string;
-  qna: EvaluationInputQnA[];
+  challenges: Challenge[];
 }
 
-export interface AnswerEvaluation {
+export interface Challenge {
   id: string;
-  suggestion: string;
+  explaination: string;
+  question: string;
   answer: string;
-  correct: boolean;
-}
-
-export interface ReadingReport {
-  contentSet: ContentSet;
-  evaluation: AnswerEvaluation[]
+  expected: string;
+  correct: boolean | undefined;
 }
