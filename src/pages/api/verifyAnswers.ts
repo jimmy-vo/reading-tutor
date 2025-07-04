@@ -30,9 +30,20 @@ export default async function handler(
     try {
       const prompt = `
 ${Date.now()}
-Your task is to provide EVALUATION on obtained answers in json format to evaluate user answers with provided INPUT contains the text, qna including questionId, the obtained answer and the expected answer. 
-An answer is correct when it indicates that the user understands the question and the given text. It doesn't have to be perfect or grammarly correct.
-For example if questionId1 has perfect answer while questionId2's is incorrect and questionId3's is correct but can be grammarly improved:
+
+Your task is to provide an EVALUATION of obtainedAnswer in JSON format to evaluate answers with the provided INPUT, which contains:
+ - passage: A text given to a child to read and answer questions about.
+ - qna: An array that includes:
+   - id: A unique, incremental identifier for each question and answer set.
+   - question: The question designed to assess understanding of the passage.
+   - obtainedAnswer: The answer provided by the child.
+   - expectedAnswer: Guidance for evaluating obtainedAnswer (which the child does not have access to).
+
+An answer is incorrect if it is completely wrong, irrelevant to the question, or not supported by the passage.
+An answer is correct if it demonstrates that the user understands the question and the given text, even if it is missing some details or contains grammatical errors.
+It is important to encourage kids to read and learn, not just to spot what is wrong.
+
+For example, if questionId1 has a perfect answer, questionId2's answer is incorrect, and questionId3’s answer is correct but could be improved grammatically:
 EVALUATION: 
 \`\`\`json
 ${JSON.stringify(examples, null, 0)}

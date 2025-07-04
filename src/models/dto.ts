@@ -23,7 +23,7 @@ export interface EvaluationInputQnA {
 }
 
 export interface EvaluationInput {
-  text: string;
+  passage: string;
   qna: EvaluationInputQnA[];
 }
 

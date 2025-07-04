@@ -25,7 +25,7 @@ export namespace Config {
         {
             id: 1,
             count: 4,
-            questions: 1,
+            questions: 5,
             topics: ["Home", "Animals", "School", "Family", "Weather", "Playtime"],
             passageFeatures: [
                 "4 simple sentences",

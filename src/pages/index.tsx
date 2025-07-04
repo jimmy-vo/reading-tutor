@@ -15,7 +15,7 @@ import {
   resetHistoryStorage,
 } from '../services/history-service';
 import { SideBar } from '../components/sidebar';
-import { readLevel, shouldUplevel } from '../services/level-service';
+import { readLevel, updateFromHistory } from '../services/level-service';
 
 export interface Answer {
   id: string;
@@ -83,9 +83,6 @@ export default function Home() {
   const onPostCreate = (contentSet: ContentSet) => {
     setLoading(false);
 
-    if (shouldUplevel()) {
-      setShowCongrats(100);
-    }
     setActiveItem(contentSet);
     setSelectedItem(contentSet);
   };
@@ -110,7 +107,9 @@ export default function Home() {
     };
     addHistoryToStorage(newItem);
     setActiveItem(newItem);
-    setHistory(await getHistoryFromStorage());
+    const histroy = await getHistoryFromStorage();
+    setHistory(histroy);
+    updateFromHistory(histroy);
     if (
       evaluationResult.filter((x) => x.correct === true).length ==
       evaluationResult.length

@@ -21,8 +21,7 @@ export function readLevel(): number {
     return parseInt(level, 10);
 }
 
-export const shouldUplevel = (): boolean => {
-    var history = getHistoryFromStorage();
+export const updateFromHistory = (history: ContentSet[]): boolean => {
     const gradeId = readLevel()
     var grade = getGrade(gradeId);
     if (!grade) return false;
@@ -36,6 +35,7 @@ export const shouldUplevel = (): boolean => {
 
 import { Grade } from '../models/backend';
 import { Config } from '../utils/env';
+import { ContentSet } from '../models/view';
 
 
 export function getGrade(num: number): Grade | null {
