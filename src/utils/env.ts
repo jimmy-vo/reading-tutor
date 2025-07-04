@@ -11,7 +11,7 @@ export namespace Config {
         {
             id: 0,
             count: 3,
-            questions: 1,
+            questions: 2,
             topics: ["Home", "School", "Family"],
             passageFeatures: [
                 "3 Simple sentences",
@@ -24,7 +24,7 @@ export namespace Config {
         },
         {
             id: 1,
-            count: 3,
+            count: 4,
             questions: 1,
             topics: ["Home", "Animals", "School", "Family", "Weather", "Playtime"],
             passageFeatures: [
@@ -40,7 +40,7 @@ export namespace Config {
         },
         {
             id: 2,
-            count: 8,
+            count: 5,
             questions: 5,
             topics: [
                 "Community helpers",
@@ -64,7 +64,7 @@ export namespace Config {
         },
         {
             id: 3,
-            count: 5,
+            count: 6,
             questions: 5,
             topics: ["Fables", "Culture", "Science concepts", "Friendship"],
             passageFeatures: [
