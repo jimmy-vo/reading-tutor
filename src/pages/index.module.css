@@ -41,7 +41,9 @@
   border-radius: 10px;
   font-family: 'Comic Sans MS', cursive, sans-serif;
   width: calc(100% - 60px - 40px);
-  margin: 0 30px;
+  margin: auto;
+  margin-top: 20px;
+  max-width: 1000px;
 }
 
 .scoreContainer {
@@ -50,7 +52,7 @@
 
 .hamburgerButton {
   position: fixed;
-  top: 20px;
+  top: 40px;
   left: 20px;
   font-size: 24px;
   cursor: pointer;
@@ -74,7 +76,6 @@
   transition: transform 0.3s ease-in-out;
   z-index: 1000;
   overflow-y: auto;
-  padding: 20px;
 }
 
 .drawerOpen {

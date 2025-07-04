@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './scores.module.css';
 import { ContentSet } from '../models/view';
+import { getShowResetFromStorage } from '../services/config-service';
 
 interface ScoresProps {
   className?: string;
@@ -9,6 +10,12 @@ interface ScoresProps {
 }
 
 const Scores: React.FC<ScoresProps> = ({ onResetTap, reports, className }) => {
+  const [showReset, setShowReset] = useState(false);
+
+  useEffect(() => {
+    setShowReset(getShowResetFromStorage());
+  }, []);
+
   const answerResults = reports
     .map((x) => x.challenges)
     .flat()
@@ -17,14 +24,14 @@ const Scores: React.FC<ScoresProps> = ({ onResetTap, reports, className }) => {
   const total = answerResults.length;
   return (
     <div className={className}>
-      <div className={styles.container}>
-        <span className={styles.scores}>
-          Correct Answers: {correct}/{total}
-        </span>
+      <span className={`${styles.scores} ${!showReset ? styles.center : ''}`}>
+        Total Score: {correct}/{total}
+      </span>
+      {showReset && (
         <button className={styles.button} onClick={onResetTap}>
           Reset
         </button>
-      </div>
+      )}
     </div>
   );
 };

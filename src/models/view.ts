@@ -1,5 +1,6 @@
 
 export interface ContentSet {
+  grade: number;
   topic: string;
   text: string;
   challenges: Challenge[];

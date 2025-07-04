@@ -16,15 +16,18 @@
   user-select: none;
 }
 
-.container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  user-select: none;
-}
-
 .scores {
   flex-grow: 1;
   font-weight: bold;
   user-select: none;
+
+  vertical-align: middle;
+  margin: auto;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }

@@ -1,16 +1,22 @@
 import axios from 'axios';
-import { Content, EvaluationOutput } from '../models/dto';
+import { Content, EvaluationOutput, GenerateContentInput, GenerateTopicInput } from '../models/dto';
 import { Challenge, ContentSet } from '../models/view';
 import { getHistoryFromStorage } from './history-service';
+import { readLevel } from './level-service';
 
-const fetchContent = async (topic: string): Promise<Content> => {
+const fetchContent = async (topic: string, grade: number): Promise<Content> => {
   let attempts = 0;
   const maxAttempts = 3;
   let contentResponse;
 
   while (attempts < maxAttempts) {
     try {
-      contentResponse = await axios.post('/api/generateContent', { topic });
+
+      const dto: GenerateContentInput = {
+        topic: topic,
+        level: grade
+      }
+      contentResponse = await axios.post('/api/generateContent', dto);
       return contentResponse.data as Content;
     } catch (error) {
       attempts++;
@@ -21,14 +27,18 @@ const fetchContent = async (topic: string): Promise<Content> => {
 };
 
 
-const fetchTopic = async (topics: string[]): Promise<string> => {
+const fetchTopic = async (topics: string[], grade: number): Promise<string> => {
   let attempts = 0;
   const maxAttempts = 3;
   let topicResponse;
 
   while (attempts < maxAttempts) {
     try {
-      topicResponse = await axios.post('/api/generateTopic', topics);
+      const dto: GenerateTopicInput = {
+        topics: topics,
+        level: grade
+      }
+      topicResponse = await axios.post('/api/generateTopic', dto);
 
       const newTopic = (topicResponse.data as { topic: string }).topic;
       return newTopic;
@@ -73,11 +83,13 @@ export const verifyAnswers = async (contentSet: ContentSet): Promise<Challenge[]
 
 export const generateNewContent = async (): Promise<ContentSet> => {
   const topics = getHistoryFromStorage().map(x => x.topic);
-  const topic = await fetchTopic(topics);
+  const grade = readLevel();
+  const topic = await fetchTopic(topics, grade);
 
-  const content = await fetchContent(topic);
+  const content = await fetchContent(topic, grade);
   const contentSet: ContentSet = {
     topic: topic,
+    grade: grade,
     text: content.text,
     challenges: content.qna.map(x => ({
       id: x.id,

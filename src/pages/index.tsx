@@ -1,7 +1,9 @@
 import ContentComponent from '../components/main-content';
+import ProgressBar from '../components/ProgressBar';
 import { getHistoryFromStorage } from '../services/history-service';
 import styles from './index.module.css';
 import { useState, useEffect, useRef } from 'react';
+import LevelUpAnimation from '../components/LevelUpAnimation';
 import {
   generateNewContent,
   getActiveContentStorage,
@@ -13,6 +15,7 @@ import {
   resetHistoryStorage,
 } from '../services/history-service';
 import { SideBar } from '../components/sidebar';
+import { readLevel, shouldUplevel } from '../services/level-service';
 
 export interface Answer {
   id: string;
@@ -26,6 +29,7 @@ export default function Home() {
   const [selectedItem, setSelectedItem] = useState<ContentSet>();
   const [loading, setLoading] = useState(false);
   const [localStorageReady, setLocalStorageReady] = useState(false);
+  const [congratAnimation, setShowCongrats] = useState(0);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
@@ -78,6 +82,10 @@ export default function Home() {
 
   const onPostCreate = (contentSet: ContentSet) => {
     setLoading(false);
+
+    if (shouldUplevel()) {
+      setShowCongrats(100);
+    }
     setActiveItem(contentSet);
     setSelectedItem(contentSet);
   };
@@ -95,6 +103,7 @@ export default function Home() {
     const evaluationResult = await verifyAnswers(newContentSet);
     setLoading(false);
     const newItem = {
+      grade: newContentSet.grade,
       text: activeItem.text,
       topic: activeItem.topic,
       challenges: evaluationResult,
@@ -102,6 +111,12 @@ export default function Home() {
     addHistoryToStorage(newItem);
     setActiveItem(newItem);
     setHistory(await getHistoryFromStorage());
+    if (
+      evaluationResult.filter((x) => x.correct === true).length ==
+      evaluationResult.length
+    ) {
+      setShowCongrats(50);
+    }
   };
 
   const toggleDrawer = () => {
@@ -113,11 +128,25 @@ export default function Home() {
     setDrawerOpen(false);
   };
 
+  const showSpiner = (): boolean =>
+    !localStorageReady || loading || !activeItem;
+  const showOveray = (): boolean => showSpiner() || showCongrats();
+  const showCongrats = (): boolean => congratAnimation !== 0;
+
+  const hasEvaluation =
+    activeItem?.challenges?.every((x) => x.correct !== undefined) ?? false;
   return (
     <div>
-      {(!localStorageReady || loading || !activeItem) && (
+      {showOveray() && (
         <div className={styles.loadingOverlay}>
-          <div className={styles.loadingSpinner}></div>
+          {showSpiner() && <div className={styles.loadingSpinner}></div>}
+
+          {showCongrats() && (
+            <LevelUpAnimation
+              length={congratAnimation}
+              onAnimationEnd={() => setShowCongrats(0)}
+            />
+          )}
         </div>
       )}
       {activeItem && (
@@ -138,12 +167,17 @@ export default function Home() {
               current={activeItem}
             />
           </div>
+          {true && (
+            <ProgressBar
+              history={history}
+              currentLevel={readLevel()}
+              showCurrent={!hasEvaluation}
+            />
+          )}
           <ContentComponent
             className={styles.mainContainer}
             contentSet={selectedItem!}
-            isNextDisabled={
-              !activeItem.challenges.every((x) => x.correct !== undefined)
-            }
+            isNextDisabled={!hasEvaluation}
             onSubmit={handleSubmit}
             onNext={handleNext}
           />

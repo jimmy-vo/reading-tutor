@@ -3,10 +3,14 @@
   flex-direction: column;
   height: 100%;
   user-select: none;
+  padding: 0px;
+  margin: 0px;
 }
+
 .historyContainer {
   list-style-type: none;
-  padding: 0;
+  padding: 20px;
+  margin: 0px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -16,8 +20,13 @@
 }
 
 .scoreContainer {
-  margin-bottom: 20px;
   user-select: none;
+  margin: 20px;
+  padding: 10px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: stretch; /* Ensure children stretch */
 }
 
 .historyItem {

@@ -26,3 +26,13 @@ export interface EvaluationInput {
   text: string;
   qna: EvaluationInputQnA[];
 }
+
+export interface GenerateTopicInput {
+  topics: string[];
+  level: number;
+}
+
+export interface GenerateContentInput {
+  topic: string;
+  level: number;
+}
