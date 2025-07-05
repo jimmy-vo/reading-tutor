@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import styles from './LevelUpAnimation.module.css';
+import styles from './VictoryAnimation.module.css';
 
-const LevelUpAnimation = ({
+const VictoryAnimation = ({
   onAnimationEnd,
   length,
 }: {
@@ -63,4 +63,4 @@ const LevelUpAnimation = ({
   );
 };
 
-export default LevelUpAnimation;
+export default VictoryAnimation;

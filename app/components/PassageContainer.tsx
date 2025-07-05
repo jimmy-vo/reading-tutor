@@ -1,12 +1,12 @@
 import React from 'react';
-import styles from './content-context.module.css';
+import styles from './PassageContainer.module.css';
 
-interface ContentContextProps {
+interface PassageContainerProps {
   topic: string;
   text: string;
 }
 
-const ContentContext: React.FC<ContentContextProps> = ({ topic, text }) => {
+const PassageContainer: React.FC<PassageContainerProps> = ({ topic, text }) => {
   return (
     <div>
       <p className={styles.title}> {topic} </p>
@@ -15,4 +15,4 @@ const ContentContext: React.FC<ContentContextProps> = ({ topic, text }) => {
   );
 };
 
-export default ContentContext;
+export default PassageContainer;

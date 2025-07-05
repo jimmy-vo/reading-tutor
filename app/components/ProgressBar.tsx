@@ -2,18 +2,18 @@ import React from 'react';
 import styles from './ProgressBar.module.css';
 import { Grade } from '../models/backend';
 import { ContentSet } from '../models/view';
-import { countAllCorrectInArrow } from '../services/history-service';
-import { Config } from '../utils/env';
+import { countAllCorrectInArrow } from '../services/historyService';
+import { Config } from '../services/configService';
 
 interface ProgressBarProps {
   history: ContentSet[];
-  currentLevel: number;
+  grade: number;
   showCurrent: boolean;
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({
   history,
-  currentLevel: currentGrade,
+  grade: currentGrade,
   showCurrent,
 }) => {
   let currentCount = countAllCorrectInArrow(history, currentGrade);

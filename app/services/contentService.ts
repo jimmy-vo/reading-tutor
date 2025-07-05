@@ -1,8 +1,21 @@
 import axios from 'axios';
 import { Content, EvaluationOutput, GenerateContentInput, GenerateTopicInput } from '../models/dto';
 import { Challenge, ContentSet } from '../models/view';
-import { getHistoryFromStorage } from './history-service';
-import { readLevel } from './level-service';
+
+const ACTIVE_CONTENT_KEY = "content";
+
+
+export namespace ContentStorage {
+  export const read = (): ContentSet | null => {
+    const contentSetString = localStorage.getItem(ACTIVE_CONTENT_KEY);
+    const cachedContentSet: ContentSet | null = contentSetString ? JSON.parse(contentSetString) : null;
+    return cachedContentSet;
+  };
+
+  export const write = (contentSet: ContentSet) => {
+    localStorage.setItem(ACTIVE_CONTENT_KEY, JSON.stringify(contentSet));
+  }
+}
 
 const fetchContent = async (topic: string, grade: number): Promise<Content> => {
   let attempts = 0;
@@ -81,9 +94,8 @@ export const verifyAnswers = async (contentSet: ContentSet): Promise<Challenge[]
 }
 
 
-export const generateNewContent = async (): Promise<ContentSet> => {
-  const topics = getHistoryFromStorage().map(x => x.topic);
-  const grade = readLevel();
+export const generateNewContent = async (history: ContentSet[], grade: number): Promise<ContentSet> => {
+  const topics = history.map(x => x.topic);
   const topic = await fetchTopic(topics, grade);
 
   const content = await fetchContent(topic, grade);
@@ -101,35 +113,27 @@ export const generateNewContent = async (): Promise<ContentSet> => {
     }))
   };
 
-  localStorage.setItem('contentSet', JSON.stringify(contentSet));
+  ContentStorage.write(contentSet);
   return contentSet;
 }
 
 
-export const getActiveContentStorage = async (): Promise<ContentSet> => {
-  const cachedContentSetString = localStorage.getItem('contentSet');
-
-  const cachedContentSet: ContentSet | null = cachedContentSetString ? JSON.parse(cachedContentSetString) : null;
-
-  if (!cachedContentSet) return await generateNewContent();
-
-  if (
-    typeof cachedContentSet.topic === 'string' &&
-    typeof cachedContentSet.text === 'string' &&
-    Array.isArray(cachedContentSet.challenges) &&
-    cachedContentSet.challenges.every(
-      (qna: any) =>
-        typeof qna.id === 'string' &&
-        typeof qna.question === 'string' &&
-        typeof qna.expected === 'string'
-    )
-  ) {
-    return cachedContentSet;
-  }
-
-  return await generateNewContent();
+export const getActiveContentStorage = async (history: ContentSet[], grade: number): Promise<ContentSet> => {
+  const cachedContentSet: ContentSet | null = ContentStorage.read();
+  if (validateContent(cachedContentSet)) return cachedContentSet!;
+  return await generateNewContent(history, grade);
 }
 
-export const removeActiveContentStorage = () => localStorage.removeItem('contentSet');
+const validateContent = (cachedContentSet: ContentSet | null) =>
+  cachedContentSet &&
+  typeof cachedContentSet.topic === 'string' &&
+  typeof cachedContentSet.text === 'string' &&
+  Array.isArray(cachedContentSet.challenges) &&
+  cachedContentSet.challenges.every(
+    (qna: any) =>
+      typeof qna.id === 'string' &&
+      typeof qna.question === 'string' &&
+      typeof qna.expected === 'string');
+export const removeActiveContentStorage = () => localStorage.removeItem(ACTIVE_CONTENT_KEY);
 
 

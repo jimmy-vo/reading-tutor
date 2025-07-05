@@ -1,14 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { createCompletion } from '../../utils/openaiClient';
+import { createCompletion } from '../../services/openaiService';
 import { GenerateTopicInput } from '../../models/dto';
-import { getGrade } from '../../services/level-service';
+import { getGrade } from '../../services/gradeService';
 
-type Data = {
-    topic?: string;
-    error?: string;
-};
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
+export default async function handler(
+    req: NextApiRequest,
+    res: NextApiResponse
+) {
     if (req.method === 'POST') {
         const { topics, level = 1 } = req.body as GenerateTopicInput;
 

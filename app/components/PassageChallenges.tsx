@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import styles from './content-challenges.module.css';
+import styles from './PassageChallenges.module.css';
 import { Challenge } from '../models/view';
 
-interface ContentChallengesProps {
+interface PassageChallengesProps {
   challenges: Challenge[];
   onChanged: (challenges: Challenge[]) => void;
 }
 
-const ContentChallenges: React.FC<ContentChallengesProps> = ({
+const PassageChallenges: React.FC<PassageChallengesProps> = ({
   challenges: qnas,
   onChanged,
 }) => {
@@ -54,4 +54,4 @@ const ContentChallenges: React.FC<ContentChallengesProps> = ({
   );
 };
 
-export default ContentChallenges;
+export default PassageChallenges;

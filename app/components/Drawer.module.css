@@ -19,14 +19,9 @@
   user-select: none;
 }
 
-.scoreContainer {
-  user-select: none;
+.resetContainer {
+  width: 100%;
   margin: 20px;
-  padding: 10px;
-
-  display: flex;
-  flex-direction: row;
-  align-items: stretch; /* Ensure children stretch */
 }
 
 .historyItem {

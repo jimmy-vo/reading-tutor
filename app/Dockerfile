@@ -22,7 +22,6 @@ COPY components/ ./components
 COPY public/ ./public
 COPY pages/ ./pages
 COPY services/ ./services
-COPY utils/ ./utils
 
 # Build the application
 RUN npm run build 

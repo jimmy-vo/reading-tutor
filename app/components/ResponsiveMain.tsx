@@ -1,20 +1,20 @@
 import React, { useRef, useEffect, useState } from 'react';
-import ContentContext from './content-context';
-import ContentChallenges from './content-challenges';
-import styles from './main-content.module.css';
-import { ContentController } from './content-controller';
+import PassageContainer from './PassageContainer';
+import PassageChallenges from './PassageChallenges';
+import styles from './ResponsiveMain.module.css';
+import { ContentController } from './ChallengeButtons';
 import { Challenge, ContentSet } from '../models/view';
 
-interface ContentProps {
+interface ResponsiveMainProps {
   className?: string;
-  contentSet: ContentSet;
+  item: ContentSet;
   isNextDisabled: boolean;
   onSubmit: (contentSet: ContentSet) => void;
   onNext: () => void;
 }
 
-const MainContent: React.FC<ContentProps> = ({
-  contentSet,
+const ResponsiveMain: React.FC<ResponsiveMainProps> = ({
+  item: contentSet,
   isNextDisabled,
   onSubmit,
   onNext,
@@ -104,11 +104,11 @@ const MainContent: React.FC<ContentProps> = ({
   return (
     <div className={`${styles.responsiveContainer} ${className}`}>
       <div ref={textContainerRef} className={styles.textContainer}>
-        <ContentContext topic={contentSet.topic} text={contentSet.text} />
+        <PassageContainer topic={contentSet.topic} text={contentSet.text} />
       </div>
       <div className={styles.divider} ref={dividerRef} />
       <div className={styles.challengesContainer} ref={challengesContainerRef}>
-        <ContentChallenges
+        <PassageChallenges
           onChanged={handleAnswerChanged}
           challenges={contentSet.challenges}
         />
@@ -124,4 +124,4 @@ const MainContent: React.FC<ContentProps> = ({
   );
 };
 
-export default MainContent;
+export default ResponsiveMain;

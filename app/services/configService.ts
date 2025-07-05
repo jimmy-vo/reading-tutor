@@ -28,7 +28,7 @@ export namespace Config {
             questions: 5,
             topics: ["Home", "Animals", "School", "Family", "Weather", "Playtime"],
             passageFeatures: [
-                "4 simple sentences",
+                "6 simple sentences",
                 "Heavy illustration support"
             ],
             questionFeatures: [
@@ -212,4 +212,13 @@ export namespace Config {
         //     ]
         // }
     ]
-} 
+}
+
+export const getShowResetFromStorage = (): boolean => {
+    let showReset = localStorage.getItem('showReset');
+    if (showReset === null) {
+        showReset = `${false}`;
+        localStorage.setItem('showReset', showReset);
+    }
+    return JSON.parse(showReset);
+};

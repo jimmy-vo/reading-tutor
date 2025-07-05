@@ -1,9 +1,7 @@
-import { createCompletion } from '../../utils/openaiClient';
+import { createCompletion } from '../../services/openaiService';
 import { NextApiRequest, NextApiResponse } from 'next';
-
 import { Content, GenerateContentInput, } from '../../models/dto';
-import { Config } from '../../utils/env';
-import { getGrade } from '../../services/level-service';
+import { getGrade } from '../../services/gradeService';
 
 const example: Content = {
   text: "John went to school this morning, then he went home for lunch. After that he went back to school but he felt so bad. His mom kept him at home for the rest of the day",

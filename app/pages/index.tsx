@@ -1,21 +1,18 @@
-import ContentComponent from '../components/main-content';
+import ContentComponent from '../components/ResponsiveMain';
 import ProgressBar from '../components/ProgressBar';
-import { getHistoryFromStorage } from '../services/history-service';
+import { HistoryStorage } from '../services/historyService';
 import styles from './index.module.css';
 import { useState, useEffect, useRef } from 'react';
-import LevelUpAnimation from '../components/LevelUpAnimation';
+import VictoryAnimation from '../components/VictoryAnimation';
 import {
   generateNewContent,
-  getActiveContentStorage,
+  getActiveContentStorage as getActiveContent,
   verifyAnswers,
-} from '../services/content-service';
+} from '../services/contentService';
 import { ContentSet } from '../models/view';
-import {
-  addHistoryToStorage,
-  resetHistoryStorage,
-} from '../services/history-service';
-import { SideBar } from '../components/sidebar';
-import { readLevel, updateFromHistory } from '../services/level-service';
+import { updateHistory, resetHistory } from '../services/historyService';
+import { Drawer } from '../components/Drawer';
+import { GradeStorage, updateFromHistory } from '../services/gradeService';
 
 export interface Answer {
   id: string;
@@ -25,10 +22,10 @@ export interface Answer {
 
 export default function Home() {
   const [history, setHistory] = useState<ContentSet[]>([]);
+  const [grade, setGrade] = useState<number>(0);
   const [activeItem, setActiveItem] = useState<ContentSet>();
   const [selectedItem, setSelectedItem] = useState<ContentSet>();
-  const [loading, setLoading] = useState(false);
-  const [localStorageReady, setLocalStorageReady] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [congratAnimation, setShowCongrats] = useState(0);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
 
@@ -37,13 +34,11 @@ export default function Home() {
       while (typeof window === 'undefined') {
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
-      setLocalStorageReady(true);
-      const newcontentSet = await getActiveContentStorage();
-      setActiveItem(newcontentSet);
-      onPostCreate(newcontentSet);
-
-      const reportData = await getHistoryFromStorage();
-      setHistory(reportData);
+      setHistory(HistoryStorage.read());
+      setGrade(GradeStorage.read());
+      const activeContent = await getActiveContent(history, grade);
+      setActiveItem(activeContent);
+      onPostCreate(activeContent);
     };
 
     fetchData();
@@ -75,21 +70,20 @@ export default function Home() {
   const handleReset = async () => {
     setLoading(true);
     setDrawerOpen(false);
-    resetHistoryStorage();
+    resetHistory();
     setHistory([]);
     await handleNext();
   };
 
   const onPostCreate = (contentSet: ContentSet) => {
     setLoading(false);
-
     setActiveItem(contentSet);
     setSelectedItem(contentSet);
   };
 
   const handleNext = async () => {
     setLoading(true);
-    const contentSet = await generateNewContent();
+    const contentSet = await generateNewContent(history, grade);
     onPostCreate(contentSet);
   };
 
@@ -98,18 +92,17 @@ export default function Home() {
 
     setLoading(true);
     const evaluationResult = await verifyAnswers(newContentSet);
-    setLoading(false);
     const newItem = {
       grade: newContentSet.grade,
       text: activeItem.text,
       topic: activeItem.topic,
       challenges: evaluationResult,
     };
-    addHistoryToStorage(newItem);
+    updateHistory(newItem);
     setActiveItem(newItem);
-    const histroy = await getHistoryFromStorage();
-    setHistory(histroy);
-    updateFromHistory(histroy);
+    setLoading(false);
+    setHistory(history);
+    updateFromHistory(history);
     if (
       evaluationResult.filter((x) => x.correct === true).length ==
       evaluationResult.length
@@ -118,30 +111,26 @@ export default function Home() {
     }
   };
 
-  const toggleDrawer = () => {
-    setDrawerOpen(!isDrawerOpen);
-  };
+  const toggleDrawer = () => setDrawerOpen(!isDrawerOpen);
 
   const handleSelect = (topic: string) => {
     setSelectedItem([...history, activeItem!].find((x) => x.topic === topic));
     setDrawerOpen(false);
   };
 
-  const showSpiner = (): boolean =>
-    !localStorageReady || loading || !activeItem;
-  const showOveray = (): boolean => showSpiner() || showCongrats();
-  const showCongrats = (): boolean => congratAnimation !== 0;
+  const showSpiner = loading || !activeItem;
+  const showCongrats = congratAnimation !== 0;
+  const showOveray = showSpiner || showCongrats;
 
   const hasEvaluation =
     activeItem?.challenges?.every((x) => x.correct !== undefined) ?? false;
   return (
     <div>
-      {showOveray() && (
+      {showOveray && (
         <div className={styles.loadingOverlay}>
-          {showSpiner() && <div className={styles.loadingSpinner}></div>}
-
-          {showCongrats() && (
-            <LevelUpAnimation
+          {showSpiner && <div className={styles.loadingSpinner}></div>}
+          {showCongrats && (
+            <VictoryAnimation
               length={congratAnimation}
               onAnimationEnd={() => setShowCongrats(0)}
             />
@@ -159,7 +148,7 @@ export default function Home() {
               isDrawerOpen ? styles.drawerOpen : ''
             }`}
           >
-            <SideBar
+            <Drawer
               onSelect={handleSelect}
               onResetTap={handleReset}
               history={history}
@@ -169,13 +158,13 @@ export default function Home() {
           {true && (
             <ProgressBar
               history={history}
-              currentLevel={readLevel()}
+              grade={grade}
               showCurrent={!hasEvaluation}
             />
           )}
           <ContentComponent
             className={styles.mainContainer}
-            contentSet={selectedItem!}
+            item={selectedItem!}
             isNextDisabled={!hasEvaluation}
             onSubmit={handleSubmit}
             onNext={handleNext}
