@@ -17,8 +17,12 @@ COPY .prettierrc ./
 COPY .eslintrc.json ./
 
 # Copy the rest of the application code to the working directory
-COPY src/ ./src
+COPY models/ ./models
+COPY components/ ./components
 COPY public/ ./public
+COPY pages/ ./pages
+COPY services/ ./services
+COPY utils/ ./utils
 
 # Build the application
 RUN npm run build 
