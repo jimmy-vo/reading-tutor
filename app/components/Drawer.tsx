@@ -24,7 +24,7 @@ export const Drawer: React.FC<DrawerProps> = ({
   }, []);
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} aria-hidden="true">
       <ul className={styles.historyContainer}>
         {[
           ...(history.find((x) => x.topic === current.topic) ? [] : [current]),

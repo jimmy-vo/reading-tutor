@@ -15,7 +15,8 @@ const Button: React.FC<ButtonProps> = ({
   children,
 }) => {
   return (
-    <button
+    <button 
+      aria-hidden="true"
       className={className || styles.button}
       onClick={onClick}
       disabled={disabled}

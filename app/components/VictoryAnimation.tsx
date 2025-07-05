@@ -47,7 +47,7 @@ const VictoryAnimation = ({
     };
   });
   return (
-    <div className={styles.overlay}>
+    <div className={styles.overlay} aria-hidden="true">
       {fireworks.map((fw) => (
         <div
           key={fw.key}

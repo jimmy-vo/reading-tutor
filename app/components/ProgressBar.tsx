@@ -34,7 +34,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} aria-hidden="true">
       {Config.grades.map((grade) => (
         <React.Fragment key={`grade-fragment-${grade.id}`}>
           {Array.from({ length: grade.count }).map((_, index) => (
