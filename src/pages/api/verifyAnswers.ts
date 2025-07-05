@@ -1,6 +1,7 @@
 import { createCompletion } from '../../utils/openaiClient';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { EvaluationInput, EvaluationOutput } from '../../models/dto';
+import { tree } from 'next/dist/build/templates/app-page';
 
 const examples: EvaluationOutput[] = [
   {
@@ -26,6 +27,16 @@ export default async function handler(
 ) {
   if (req.method === 'POST') {
     const input: EvaluationInput = req.body as EvaluationInput;
+
+    // if (true) {
+    //   return res
+    //     .status(200)
+    //     .send(input.qna.map(x => ({
+    //       id: x.id,
+    //       suggestion: "",
+    //       correct: true
+    //     })))
+    // }
 
     try {
       const prompt = `

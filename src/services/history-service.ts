@@ -10,9 +10,9 @@ export const getHistoryFromStorage = (): ContentSet[] => {
 
 export const addHistoryToStorage = (contentSet: ContentSet): void => {
     const reports = getHistoryFromStorage();
-    reports.unshift(contentSet);
+    reports.unshift(contentSet); 
     if (reports.length > 10) {
-        reports.pop();
+        reports.pop(); 
     }
     localStorage.setItem(REPORT_KEY, JSON.stringify(reports));
     removeActiveContentStorage();

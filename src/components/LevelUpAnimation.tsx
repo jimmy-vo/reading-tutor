@@ -8,11 +8,17 @@ const LevelUpAnimation = ({
   onAnimationEnd: () => void;
   length: number;
 }) => {
+  const playVictoryHorn = () => {
+    const audio = new Audio('victory.mp3');
+    audio.play();
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       onAnimationEnd();
     }, 3000);
 
+    playVictoryHorn();
     return () => clearTimeout(timer);
   }, [onAnimationEnd]);
 
@@ -42,10 +48,6 @@ const LevelUpAnimation = ({
   });
   return (
     <div className={styles.overlay}>
-      {/* <div className={styles.animation}>
-        <h1>Congratulations!</h1>
-        <p>You've reached a new level!</p>
-      </div> */}
       {fireworks.map((fw) => (
         <div
           key={fw.key}

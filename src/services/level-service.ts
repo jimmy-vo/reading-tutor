@@ -1,5 +1,8 @@
 import { countAllCorrectInArrow, getHistoryFromStorage, resetHistoryStorage } from './history-service';
 import { removeActiveContentStorage } from './content-service';
+import { Grade } from '../models/backend';
+import { Config } from '../utils/env';
+import { ContentSet } from '../models/view';
 
 const LEVEL_KEY = 'level';
 
@@ -22,20 +25,16 @@ export function readLevel(): number {
 }
 
 export const updateFromHistory = (history: ContentSet[]): boolean => {
-    const gradeId = readLevel()
+    const gradeId = readLevel();
     var grade = getGrade(gradeId);
     if (!grade) return false;
     var allCorrect = countAllCorrectInArrow(history, gradeId);
     const res = allCorrect >= grade.count;
     if (res) {
-        writeLevel(readLevel() + 1)
+        writeLevel(readLevel() + 1);
     }
     return res;
 }
-
-import { Grade } from '../models/backend';
-import { Config } from '../utils/env';
-import { ContentSet } from '../models/view';
 
 
 export function getGrade(num: number): Grade | null {
