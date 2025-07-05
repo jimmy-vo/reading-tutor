@@ -15,7 +15,7 @@ export namespace HistoryStorage {
     }
 }
 
-export const updateHistory = (contentSet: ContentSet): void => {
+export const updateHistory = (contentSet: ContentSet): ContentSet[] => {
     const history = HistoryStorage.read();
     history.unshift(contentSet);
     if (history.length > 10) {
@@ -23,6 +23,7 @@ export const updateHistory = (contentSet: ContentSet): void => {
     }
     HistoryStorage.write(history);
     removeActiveContentStorage();
+    return history;
 };
 
 export const resetHistory = (): void => {

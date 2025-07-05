@@ -120,12 +120,14 @@ export const generateNewContent = async (history: ContentSet[], grade: number): 
 
 export const getActiveContentStorage = async (history: ContentSet[], grade: number): Promise<ContentSet> => {
   const cachedContentSet: ContentSet | null = ContentStorage.read();
-  if (validateContent(cachedContentSet)) return cachedContentSet!;
+
+  if (validateContent(cachedContentSet, grade)) return cachedContentSet!;
   return await generateNewContent(history, grade);
 }
 
-const validateContent = (cachedContentSet: ContentSet | null) =>
+const validateContent = (cachedContentSet: ContentSet | null, grade: number) =>
   cachedContentSet &&
+  cachedContentSet.grade === grade &&
   typeof cachedContentSet.topic === 'string' &&
   typeof cachedContentSet.text === 'string' &&
   Array.isArray(cachedContentSet.challenges) &&

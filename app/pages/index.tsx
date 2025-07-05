@@ -76,9 +76,9 @@ export default function Home() {
   };
 
   const onPostCreate = (contentSet: ContentSet) => {
-    setLoading(false);
     setActiveItem(contentSet);
     setSelectedItem(contentSet);
+    setLoading(false);
   };
 
   const handleNext = async () => {
@@ -92,22 +92,25 @@ export default function Home() {
 
     setLoading(true);
     const evaluationResult = await verifyAnswers(newContentSet);
-    const newItem = {
-      grade: newContentSet.grade,
-      text: activeItem.text,
-      topic: activeItem.topic,
-      challenges: evaluationResult,
-    };
-    updateHistory(newItem);
-    setActiveItem(newItem);
     setLoading(false);
-    setHistory(history);
-    updateFromHistory(history);
     if (
       evaluationResult.filter((x) => x.correct === true).length ==
       evaluationResult.length
     ) {
       setShowCongrats(50);
+    }
+    const newItem: ContentSet = {
+      grade: newContentSet.grade,
+      text: activeItem.text,
+      topic: activeItem.topic,
+      challenges: evaluationResult,
+    };
+    setActiveItem(newItem);
+    const newHistory = updateHistory(newItem);
+    setHistory(newHistory);
+    if ( updateFromHistory(newHistory))
+    {
+      setGrade(GradeStorage.read())
     }
   };
 
