@@ -18,6 +18,7 @@ COPY .eslintrc.json ./
 
 # Copy the rest of the application code to the working directory
 COPY src/ ./src
+COPY public/ ./public
 
 # Build the application
 RUN npm run build 

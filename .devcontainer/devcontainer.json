@@ -17,7 +17,7 @@
       ]
     }
   },
-  "forwardPorts": [3000, 5001],
+  "forwardPorts": [3000, 5001, 7860],
   "postCreateCommand": "npm install",
   "workspaceFolder": "/workspace/app",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/app,type=bind,consistency=cached"
