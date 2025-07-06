@@ -1,20 +1,21 @@
 import ContentComponent from '../components/ResponsiveMain';
 import ProgressBar from '../components/ProgressBar';
-import { HistoryStorage, updateHistory } from '../services/historyService';
 import styles from './index.module.css';
 import { useState, useEffect, useRef } from 'react';
 import Spinner from '../components/Spinner';
 import VictoryAnimation from '../components/VictoryAnimation';
-import {
-  fetchImage,
-  generateNewContent,
-  getActiveContentStorage as getActiveContent,
-  verifyAnswers,
-} from '../services/contentService';
 import { ContentSet } from '../models/view';
-import { appendHistory, resetHistory } from '../services/historyService';
 import { Drawer } from '../components/Drawer';
-import { GradeStorage, updateFromHistory } from '../services/gradeService';
+import { GradeStorage, HistoryStorage } from '../services/storageService';
+import { ContentClient } from '../services/clientSerivce';
+import {
+  appendHistory,
+  generateNewContent,
+  getActiveContentStorage,
+  resetHistory,
+  updateFromHistory,
+  updateHistory,
+} from '../services/appService';
 
 export interface Answer {
   id: string;
@@ -38,7 +39,7 @@ export default function Home() {
       }
       setHistory(HistoryStorage.read());
       setGrade(GradeStorage.read());
-      const activeContent = await getActiveContent(history, grade);
+      const activeContent = await getActiveContentStorage(history, grade);
       setActiveItem(activeContent);
       setSelectedItem(activeContent);
       onPostCreate(activeContent);
@@ -86,6 +87,7 @@ export default function Home() {
 
   const handleNext = async () => {
     setLoading(true);
+    console.info(`Generate next content for Grade ${grade}`);
     const contentSet = await generateNewContent(history, grade);
     onPostCreate(contentSet);
   };
@@ -94,7 +96,7 @@ export default function Home() {
     if (!selectedItem) return;
 
     setLoading(true);
-    const evaluationResult = await verifyAnswers(newContentSet);
+    const evaluationResult = await ContentClient.getEvaluation(newContentSet);
     setLoading(false);
 
     const newItem: ContentSet = {
@@ -118,8 +120,9 @@ export default function Home() {
       evaluationResult.length;
 
     if (!allCorrect) return;
-
+    console.info('All answers are correct');
     await new Promise<void>((resolve) => {
+      console.info('Congrats!!!');
       setShowCongrats(50);
       // set image to null to display loading
       const newItemWithLoadingImage: ContentSet = {
@@ -132,26 +135,26 @@ export default function Home() {
       setActiveItem(newItemWithLoadingImage);
       setSelectedItem(newItemWithLoadingImage);
       resolve();
-    })
-      .then(() =>
-        fetchImage(newContentSet.text)
-          .then((imageId) => {
-            // set the image id when it is ready
-            const newItemWithImage: ContentSet = {
-              grade: newContentSet.grade,
-              text: selectedItem.text,
-              topic: selectedItem.topic,
-              image: imageId,
-              challenges: evaluationResult,
-            };
-            setActiveItem(newItemWithImage);
-            setSelectedItem(newItemWithImage);
-            setHistory(updateHistory(newItemWithImage));
-          })
-          .catch((e) => console.error(e)),
-      )
-      .finally(() => {
-        if (selectedItem.image === null) {
+    }).then(() => {
+      console.info('Generating image...');
+      return ContentClient.getImage(newContentSet)
+        .then((imageId) => {
+          console.info('Get the image...');
+          // set the image id when it is ready
+          const newItemWithImage: ContentSet = {
+            grade: newContentSet.grade,
+            text: selectedItem.text,
+            topic: selectedItem.topic,
+            image: imageId,
+            challenges: evaluationResult,
+          };
+          setActiveItem(newItemWithImage);
+          setSelectedItem(newItemWithImage);
+          setHistory(updateHistory(newItemWithImage));
+        })
+        .catch((e) => {
+          console.error(e);
+          console.info('Reset image id');
           // reset image
           const newItemWithoutImage: ContentSet = {
             grade: newContentSet.grade,
@@ -162,8 +165,8 @@ export default function Home() {
           };
           setActiveItem(newItemWithoutImage);
           setSelectedItem(newItemWithoutImage);
-        }
-      });
+        });
+    });
   };
 
   const toggleDrawer = () => setDrawerOpen(!isDrawerOpen);

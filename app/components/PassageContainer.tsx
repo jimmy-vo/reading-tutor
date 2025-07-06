@@ -14,7 +14,6 @@ const PassageContainer: React.FC<PassageContainerProps> = ({
   imageId,
   text,
 }) => {
-  console.log(topic, imageId);
   const componentRef = useRef(null);
 
   const captureImage = () => {

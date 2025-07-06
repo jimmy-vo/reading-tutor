@@ -10,7 +10,10 @@
       "skipFiles": ["<node_internals>/**"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "cwd": "${workspaceFolder}/app"
+      "cwd": "${workspaceFolder}/app",
+      "env": {
+        "NODE_ENV":  "development"
+      }
     },
     {
       "name": "Attach to Next.js",

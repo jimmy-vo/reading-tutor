@@ -40,3 +40,7 @@ export interface GenerateContentInput {
 export interface GenerateImageOutput {
   id: string;
 }
+
+export interface GenerateImageInput {
+  contentSet: Content[];
+}

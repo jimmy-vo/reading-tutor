@@ -2,8 +2,8 @@ import React from 'react';
 import styles from './ProgressBar.module.css';
 import { Grade } from '../models/backend';
 import { ContentSet } from '../models/view';
-import { countAllCorrectInArrow } from '../services/historyService';
 import { Config } from '../services/configService';
+import { countAllCorrectInArrow } from '../services/appService';
 
 interface ProgressBarProps {
   history: ContentSet[];

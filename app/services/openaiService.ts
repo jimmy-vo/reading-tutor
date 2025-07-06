@@ -4,16 +4,16 @@ import { Env } from './configService';
 const apiVersion = "2024-04-01-preview";
 
 const chatClient = new AzureOpenAI({
-  endpoint: Env.AZURE_OPENAI_ENDPOINT,
-  apiKey: Env.AZURE_OPENAI_API_KEY,
-  deployment: Env.AZURE_OPENAI_CHAT_DEPLOYMENT,
+  endpoint: Env.Llm.azureOpenaiChatEndpoint,
+  apiKey: Env.Llm.azureOpenaiChatApiKey,
+  deployment: Env.Llm.azureOpenaiChatDeployment,
   apiVersion: apiVersion
 });
 
 const imageClient = new AzureOpenAI({
-  endpoint: Env.AZURE_OPENAI_ENDPOINT,
-  apiKey: Env.AZURE_OPENAI_API_KEY,
-  deployment: Env.AZURE_OPENAI_IMAGE_DEPLOYMENT,
+  endpoint: Env.Disfusion.azureOpenaiImageEndpoint,
+  apiKey: Env.Disfusion.azureOpenaiImageApiKey,
+  deployment: Env.Disfusion.azureOpenaiImageDeployment,
   apiVersion: apiVersion
 });
 
@@ -45,10 +45,9 @@ export const llmCompletion = async (prompt: string) => {
         content: prompt,
       },
     ],
-    model: Env.AZURE_OPENAI_CHAT_DEPLOYMENT,
+    model: Env.Llm.azureOpenaiChatDeployment,
     temperature: 0,
     top_p: 0.5
   });
   return events;
 };
-

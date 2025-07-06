@@ -4,15 +4,33 @@ import { Grade } from '../models/backend';
 dotenv.config();
 
 export namespace Env {
-    export const AZURE_OPENAI_API_KEY = process.env.AZURE_OPENAI_API_KEY!;
-    export const AZURE_OPENAI_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT!;
-    export const AZURE_OPENAI_CHAT_DEPLOYMENT = process.env.AZURE_OPENAI_CHAT_DEPLOYMENT!;
-    export const AZURE_OPENAI_IMAGE_DEPLOYMENT = process.env.AZURE_OPENAI_IMAGE_DEPLOYMENT!;
     export const imageStorage = process.env.IMAGE_STORAGE!;
-    export const mockedApi = false;
+    export namespace Llm {
+        export const azureOpenaiChatApiKey = process.env.AZURE_OPENAI_CHAT_API_KEY;
+        export const azureOpenaiChatEndpoint = process.env.AZURE_OPENAI_CHAT_ENDPOINT;
+        export const azureOpenaiChatDeployment = process.env.AZURE_OPENAI_CHAT_DEPLOYMENT;
+        export const enabled = azureOpenaiChatApiKey && azureOpenaiChatEndpoint && azureOpenaiChatDeployment;
+        export const mockedApi: boolean | undefined = undefined;
+    }
+    export namespace Disfusion {
+        export const azureOpenaiImageApiKey = process.env.AZURE_OPENAI_IMAGE_API_KEY;
+        export const azureOpenaiImageEndpoint = process.env.AZURE_OPENAI_IMAGE_ENDPOINT;
+        export const azureOpenaiImageDeployment = process.env.AZURE_OPENAI_IMAGE_DEPLOYMENT;
+        export const enabled = azureOpenaiImageApiKey && azureOpenaiImageEndpoint && azureOpenaiImageDeployment;
+        export const mockedApi: boolean | undefined = undefined;
+    }
 }
 
 export namespace Config {
+
+    export function getGrade(num: number): Grade | null {
+        try {
+            return Config.grades.find(grade => grade.id === num)!;
+        } catch (error) {
+            console.error(error)
+            return null;
+        }
+    }
     export const grades: Grade[] = [
         {
             id: 0,

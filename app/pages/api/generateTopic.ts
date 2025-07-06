@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { llmCompletion } from '../../services/openaiService';
 import { GenerateTopicInput } from '../../models/dto';
-import { getGrade } from '../../services/gradeService';
-import { Env } from '../../services/configService';
+import { Config, Env } from '../../services/configService';
 
 
 export default async function handler(
@@ -16,16 +15,15 @@ export default async function handler(
             res.status(400).json({ error: 'Invalid topics list' });
             return;
         }
-        const grade = getGrade(level);
+        const grade = Config.getGrade(level);
         if (grade === null) return res.status(400).json({ error: `Cannot get grade ${level}` });
 
-        if (Env.mockedApi) {
+        if (Env.Llm.mockedApi !== undefined) {
             await new Promise(resolve => setTimeout(resolve, 2000));
             return res.status(200).json({ topic: "Play in the garden" });
         }
 
         try {
-            const grade = getGrade(level);
             const prompt = `${Date.now()}
 Generate a NEW TOPIC from the following list of EXISTING TOPICS.
 The NEW TOPIC must be limited to 10 of simple words and appropriate for kids and doesn't duplicate any of the EXISTING TOPICS. 

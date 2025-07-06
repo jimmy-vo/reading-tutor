@@ -1,16 +1,4 @@
 services:
-  reading-tutor-ws:
-    container_name: reading-tutor-cnr
-    image: reading-tutor-img
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    command: /bin/bash -c "while true; do sleep 1000; done"
-    volumes:
-      - ./:/workspace
-    env_file:
-      - ./app/.env
-
   reading-tutor:
     container_name: reading-tutor
     image: reading-tutor-img
@@ -18,9 +6,11 @@ services:
     ports:
       - "5001:3000"
     environment:
-      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY:-}
-      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT:-}
+      - AZURE_OPENAI_CHAT_API_KEY=${AZURE_OPENAI_CHAT_API_KEY:-}
+      - AZURE_OPENAI_CHAT_ENDPOINT=${AZURE_OPENAI_CHAT_ENDPOINT:-}
       - AZURE_OPENAI_CHAT_DEPLOYMENT=${AZURE_OPENAI_CHAT_DEPLOYMENT:-}
+      - AZURE_OPENAI_IMAGE_API_KEY=${AZURE_OPENAI_IMAGE_API_KEY:-}
+      - AZURE_OPENAI_IMAGE_ENDPOINT=${AZURE_OPENAI_IMAGE_ENDPOINT:-}
       - AZURE_OPENAI_IMAGE_DEPLOYMENT=${AZURE_OPENAI_IMAGE_DEPLOYMENT:-}
       - IMAGE_STORAGE=/tmp/reading-tutor
     volumes:

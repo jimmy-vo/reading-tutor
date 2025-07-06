@@ -1,0 +1,54 @@
+import { ContentSet } from "../models/view";
+
+export namespace ContentStorage {
+    const ACTIVE_CONTENT_KEY = "content";
+    export const read = (): ContentSet | null => {
+        console.debug("ContentStorage.read")
+        const contentSetString = localStorage.getItem(ACTIVE_CONTENT_KEY);
+        const cachedContentSet: ContentSet | null = contentSetString ? JSON.parse(contentSetString) : null;
+        return cachedContentSet;
+    };
+
+    export const write = (contentSet: ContentSet) => {
+        console.debug("ContentStorage.write", contentSet)
+        localStorage.setItem(ACTIVE_CONTENT_KEY, JSON.stringify(contentSet));
+    }
+    export const reset = () => localStorage.removeItem(ACTIVE_CONTENT_KEY);
+}
+
+export namespace HistoryStorage {
+
+    const HISTORY_KEY = 'list';
+    export const read = (): ContentSet[] => {
+        console.debug("HistoryStorage.read")
+        const reports = localStorage.getItem(HISTORY_KEY);
+        return reports ? JSON.parse(reports) : [];
+    };
+
+    export const write = (history: ContentSet[]) => {
+        console.debug("HistoryStorage.write", history)
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }
+}
+
+export namespace GradeStorage {
+
+    const LEVEL_KEY = 'level';
+    export const write = (level: number) => {
+        console.debug("ContentStorage.write", level)
+        if (level < 0 || level > 9) {
+            throw new Error('Level must be between 1 and 9');
+        }
+        localStorage.setItem(LEVEL_KEY, level.toString());
+    }
+
+    export const read = (): number => {
+        console.debug("GradeStorage.read")
+        const level = localStorage.getItem(LEVEL_KEY);
+        if (!level) {
+            write(0);
+            return 1;
+        }
+        return parseInt(level, 10);
+    }
+}
