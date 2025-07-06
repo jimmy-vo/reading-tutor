@@ -51,7 +51,7 @@ const PassageContainer: React.FC<PassageContainerProps> = ({
             return (
               <img
                 onClick={captureImage}
-                src={`/${imageId}.png`}
+                src={`/api/images/${imageId}`}
                 className={styles.image}
                 alt={topic}
               />

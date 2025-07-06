@@ -3,7 +3,7 @@
     {
       "label": "Run Docker",
       "type": "shell",
-      "command": "docker compose up --build",
+      "command": "docker compose up --build reading-tutor",
       "group": {
         "kind": "build",
         "isDefault": true

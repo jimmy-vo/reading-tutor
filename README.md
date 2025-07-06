@@ -19,7 +19,7 @@ To ensure the app runs when the Raspberry Pi boots up, we will use systemd to ma
    Type=oneshot
    RemainAfterExit=yes
    WorkingDirectory=/home/will/reading-tutor
-   ExecStart=/usr/bin/docker compose up --build -d
+   ExecStart=/usr/bin/docker compose up --build -d reading-tutor
    ExecStop=/usr/bin/docker compose down
 
    [Install]

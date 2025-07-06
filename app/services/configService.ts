@@ -8,6 +8,7 @@ export namespace Env {
     export const AZURE_OPENAI_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT!;
     export const AZURE_OPENAI_CHAT_DEPLOYMENT = process.env.AZURE_OPENAI_CHAT_DEPLOYMENT!;
     export const AZURE_OPENAI_IMAGE_DEPLOYMENT = process.env.AZURE_OPENAI_IMAGE_DEPLOYMENT!;
+    export const imageStorage = process.env.IMAGE_STORAGE!;
     export const mockedApi = false;
 }
 

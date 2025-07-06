@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { GenerateImageOutput } from '../../models/dto';
 import fs from 'fs';
 import { Env } from '../../services/configService';
+import path from 'path';
 
 export default async function handler(
     req: NextApiRequest,
@@ -24,7 +25,7 @@ export default async function handler(
             const base64Image = await imageComplettion(prompt);
             const buffer = Buffer.from(base64Image, 'base64');
             const imageId = uuidv4();
-            const imagePath = `./public/${imageId}.png`;
+            const imagePath = path.join(Env.imageStorage, `${imageId}.png`);
             fs.writeFileSync(imagePath, buffer);
             const data: GenerateImageOutput = { id: imageId }
             res.status(200).json(data);

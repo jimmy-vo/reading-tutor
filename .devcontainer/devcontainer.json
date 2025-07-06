@@ -1,14 +1,17 @@
 {
-  "name": "Next.js Dev Container",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:0-18",
+  "name": "reading-tutor-ws",
+  "service": "reading-tutor-ws",
+  "dockerComposeFile": "../docker-compose.yml",
+  "shutdownAction": "stopCompose",
+  "workspaceFolder": "/workspace",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "18"
-    },
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/docker-in-docker:1": {}
   },
   "customizations": {
+    "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+    },
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
@@ -19,6 +22,4 @@
   },
   "forwardPorts": [3000, 5001, 7860],
   "postCreateCommand": "npm install",
-  "workspaceFolder": "/workspace/app",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/app,type=bind,consistency=cached"
 }
