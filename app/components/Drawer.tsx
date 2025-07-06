@@ -29,10 +29,10 @@ export const Drawer: React.FC<DrawerProps> = ({
         {[
           ...(history.find((x) => x.topic === current.topic) ? [] : [current]),
           ...history,
-        ].map((item) => (
+        ].map((item, index) => (
           <li
             className={styles.historyItem}
-            key={item.topic}
+            key={index}
             onClick={() => onSelect(item.topic)}
           >
             <div className={styles.topic}>{item.topic}</div>

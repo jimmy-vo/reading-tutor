@@ -1,16 +1,18 @@
 import ContentComponent from '../components/ResponsiveMain';
 import ProgressBar from '../components/ProgressBar';
-import { HistoryStorage } from '../services/historyService';
+import { HistoryStorage, updateHistory } from '../services/historyService';
 import styles from './index.module.css';
 import { useState, useEffect, useRef } from 'react';
+import Spinner from '../components/Spinner';
 import VictoryAnimation from '../components/VictoryAnimation';
 import {
+  fetchImage,
   generateNewContent,
   getActiveContentStorage as getActiveContent,
   verifyAnswers,
 } from '../services/contentService';
 import { ContentSet } from '../models/view';
-import { updateHistory, resetHistory } from '../services/historyService';
+import { appendHistory, resetHistory } from '../services/historyService';
 import { Drawer } from '../components/Drawer';
 import { GradeStorage, updateFromHistory } from '../services/gradeService';
 
@@ -38,6 +40,7 @@ export default function Home() {
       setGrade(GradeStorage.read());
       const activeContent = await getActiveContent(history, grade);
       setActiveItem(activeContent);
+      setSelectedItem(activeContent);
       onPostCreate(activeContent);
     };
 
@@ -88,30 +91,79 @@ export default function Home() {
   };
 
   const handleSubmit = async (newContentSet: ContentSet) => {
-    if (!activeItem) return;
+    if (!selectedItem) return;
 
     setLoading(true);
     const evaluationResult = await verifyAnswers(newContentSet);
     setLoading(false);
-    if (
-      evaluationResult.filter((x) => x.correct === true).length ==
-      evaluationResult.length
-    ) {
-      setShowCongrats(50);
-    }
+
     const newItem: ContentSet = {
       grade: newContentSet.grade,
-      text: activeItem.text,
-      topic: activeItem.topic,
+      text: selectedItem.text,
+      topic: selectedItem.topic,
+      image: undefined,
       challenges: evaluationResult,
     };
     setActiveItem(newItem);
-    const newHistory = updateHistory(newItem);
+    setSelectedItem(newItem);
+    const newHistory = appendHistory(newItem);
     setHistory(newHistory);
-    if ( updateFromHistory(newHistory))
-    {
-      setGrade(GradeStorage.read())
+
+    if (updateFromHistory(newHistory)) {
+      setGrade(GradeStorage.read());
     }
+
+    const allCorrect =
+      evaluationResult.filter((x) => x.correct === true).length ==
+      evaluationResult.length;
+
+    if (!allCorrect) return;
+
+    await new Promise<void>((resolve) => {
+      setShowCongrats(50);
+      // set image to null to display loading
+      const newItemWithLoadingImage: ContentSet = {
+        grade: newContentSet.grade,
+        text: selectedItem.text,
+        topic: selectedItem.topic,
+        image: null,
+        challenges: evaluationResult,
+      };
+      setActiveItem(newItemWithLoadingImage);
+      setSelectedItem(newItemWithLoadingImage);
+      resolve();
+    })
+      .then(() =>
+        fetchImage(newContentSet.text)
+          .then((imageId) => {
+            // set the image id when it is ready
+            const newItemWithImage: ContentSet = {
+              grade: newContentSet.grade,
+              text: selectedItem.text,
+              topic: selectedItem.topic,
+              image: imageId,
+              challenges: evaluationResult,
+            };
+            setActiveItem(newItemWithImage);
+            setSelectedItem(newItemWithImage);
+            setHistory(updateHistory(newItemWithImage));
+          })
+          .catch((e) => console.error(e)),
+      )
+      .finally(() => {
+        if (selectedItem.image === null) {
+          // reset image
+          const newItemWithoutImage: ContentSet = {
+            grade: newContentSet.grade,
+            text: selectedItem.text,
+            topic: selectedItem.topic,
+            image: undefined,
+            challenges: evaluationResult,
+          };
+          setActiveItem(newItemWithoutImage);
+          setSelectedItem(newItemWithoutImage);
+        }
+      });
   };
 
   const toggleDrawer = () => setDrawerOpen(!isDrawerOpen);
@@ -121,17 +173,18 @@ export default function Home() {
     setDrawerOpen(false);
   };
 
-  const showSpiner = loading || !activeItem;
+  const showSpiner = loading || !selectedItem;
   const showCongrats = congratAnimation !== 0;
   const showOveray = showSpiner || showCongrats;
 
   const hasEvaluation =
-    activeItem?.challenges?.every((x) => x.correct !== undefined) ?? false;
+    selectedItem?.challenges?.every((x) => x.correct !== undefined) ?? false;
+
   return (
     <div>
       {showOveray && (
         <div className={styles.loadingOverlay}>
-          {showSpiner && <div className={styles.loadingSpinner}></div>}
+          {showSpiner && <Spinner />}
           {showCongrats && (
             <VictoryAnimation
               length={congratAnimation}
@@ -140,7 +193,7 @@ export default function Home() {
           )}
         </div>
       )}
-      {activeItem && (
+      {selectedItem && (
         <div className={styles.container}>
           <button className={styles.hamburgerButton} onClick={toggleDrawer}>
             ☰
@@ -168,7 +221,7 @@ export default function Home() {
           <ContentComponent
             className={styles.mainContainer}
             item={selectedItem!}
-            isNextDisabled={!hasEvaluation}
+            isNextDisabled={selectedItem.image === null || !hasEvaluation}
             onSubmit={handleSubmit}
             onNext={handleNext}
           />

@@ -3,9 +3,14 @@ import { Grade } from '../models/backend';
 
 dotenv.config();
 
-export const AZURE_OPENAI_API_KEY = process.env.AZURE_OPENAI_API_KEY!;
-export const AZURE_OPENAI_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT!;
-export const AZURE_OPENAI_DEPLOYMENT = process.env.AZURE_OPENAI_DEPLOYMENT!;
+export namespace Env {
+    export const AZURE_OPENAI_API_KEY = process.env.AZURE_OPENAI_API_KEY!;
+    export const AZURE_OPENAI_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT!;
+    export const AZURE_OPENAI_CHAT_DEPLOYMENT = process.env.AZURE_OPENAI_CHAT_DEPLOYMENT!;
+    export const AZURE_OPENAI_IMAGE_DEPLOYMENT = process.env.AZURE_OPENAI_IMAGE_DEPLOYMENT!;
+    export const mockedApi = false;
+}
+
 export namespace Config {
     export const grades: Grade[] = [
         {

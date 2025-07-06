@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Content, EvaluationOutput, GenerateContentInput, GenerateTopicInput } from '../models/dto';
+import { Content, EvaluationOutput, GenerateContentInput, GenerateImageOutput, GenerateTopicInput } from '../models/dto';
 import { Challenge, ContentSet } from '../models/view';
 
 const ACTIVE_CONTENT_KEY = "content";
@@ -39,6 +39,24 @@ const fetchContent = async (topic: string, grade: number): Promise<Content> => {
   throw new Error('Failed to fetch content after 3 attempts');
 };
 
+
+export const fetchImage = async (prompt: string): Promise<string> => {
+  let attempts = 0;
+  const maxAttempts = 3;
+  let imageResponse;
+
+  while (attempts < maxAttempts) {
+    try {
+      imageResponse = await axios.post('/api/generateImage', { prompt });
+      const data = imageResponse.data as GenerateImageOutput;
+      return data.id;
+    } catch (error) {
+      attempts++;
+    }
+  }
+
+  throw new Error('Failed to fetch image after 3 attempts');
+};
 
 const fetchTopic = async (topics: string[], grade: number): Promise<string> => {
   let attempts = 0;
@@ -103,6 +121,7 @@ export const generateNewContent = async (history: ContentSet[], grade: number): 
     topic: topic,
     grade: grade,
     text: content.text,
+    image: undefined,
     challenges: content.qna.map(x => ({
       id: x.id,
       explaination: "",
@@ -137,5 +156,3 @@ const validateContent = (cachedContentSet: ContentSet | null, grade: number) =>
       typeof qna.question === 'string' &&
       typeof qna.expected === 'string');
 export const removeActiveContentStorage = () => localStorage.removeItem(ACTIVE_CONTENT_KEY);
-
-

@@ -25,7 +25,7 @@ const PassageChallenges: React.FC<PassageChallengesProps> = ({
   };
 
   return (
-    <div aria-hidden="true">
+    <div aria-hidden="true" className={styles.container}>
       {localChallenges.map((qna, index) => (
         <div key={qna.id}>
           <p className={styles.question}> {qna.question} </p>

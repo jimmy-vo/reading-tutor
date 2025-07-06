@@ -1,7 +1,8 @@
-import { createCompletion } from '../../services/openaiService';
+import { llmCompletion } from '../../services/openaiService';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Content, GenerateContentInput, } from '../../models/dto';
 import { getGrade } from '../../services/gradeService';
+import { Env } from '../../services/configService';
 
 const example: Content = {
   text: "John went to school this morning, then he went home for lunch. After that he went back to school but he felt so bad. His mom kept him at home for the rest of the day",
@@ -24,6 +25,13 @@ export default async function handler(
 
     if (grade === null) return res.status(400).json({ error: `Cannot get grade ${level}` });
 
+    if (Env.mockedApi) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      res.status(200).json(example);
+    }
+
+
     const prompt = `${Date.now()}
 Your task is to generate simple reading passage for grade ${level} kid and a list of ${grade.questions} open questions to verify his understanding.
 for each question, generate expected answer and incremental id. 
@@ -43,7 +51,7 @@ OUTPUT:
 `;
 
     try {
-      const completion = await createCompletion(prompt);
+      const completion = await llmCompletion(prompt);
       const completionContent = completion.choices[0].message.content!.replace(/```json|```/g, '');
       const ressult = JSON.parse(completionContent);
       res.status(200).json(ressult);

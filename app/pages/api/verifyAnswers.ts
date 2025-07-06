@@ -1,6 +1,7 @@
-import { createCompletion } from '../../services/openaiService';
+import { llmCompletion } from '../../services/openaiService';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { EvaluationInput, EvaluationOutput } from '../../models/dto';
+import { Env } from '../../services/configService';
 
 const examples: EvaluationOutput[] = [
   {
@@ -27,15 +28,16 @@ export default async function handler(
   if (req.method === 'POST') {
     const input: EvaluationInput = req.body as EvaluationInput;
 
-    // if (true) {
-    //   return res
-    //     .status(200)
-    //     .send(input.qna.map(x => ({
-    //       id: x.id,
-    //       suggestion: "",
-    //       correct: true
-    //     })))
-    // }
+    if (Env.mockedApi) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      return res
+        .status(200)
+        .send(input.qna.map(x => ({
+          id: x.id,
+          suggestion: "",
+          correct: true
+        })))
+    }
 
     try {
       const prompt = `
@@ -67,7 +69,7 @@ ${JSON.stringify(input, null, 0)}
 EVALUATION:
 `;
 
-      const completion = await createCompletion(prompt);
+      const completion = await llmCompletion(prompt);
       const completionContent = completion.choices[0].message.content!.replace(/```json|```/g, '');
       const verificationResults = JSON.parse(completionContent);
       res.status(200).json(verificationResults);

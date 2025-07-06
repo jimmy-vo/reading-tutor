@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { createCompletion } from '../../services/openaiService';
+import { llmCompletion } from '../../services/openaiService';
 import { GenerateTopicInput } from '../../models/dto';
 import { getGrade } from '../../services/gradeService';
+import { Env } from '../../services/configService';
 
 
 export default async function handler(
@@ -18,6 +19,11 @@ export default async function handler(
         const grade = getGrade(level);
         if (grade === null) return res.status(400).json({ error: `Cannot get grade ${level}` });
 
+        if (Env.mockedApi) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            return res.status(200).json({ topic: "Play in the garden" });
+        }
+
         try {
             const grade = getGrade(level);
             const prompt = `${Date.now()}
@@ -32,7 +38,7 @@ EXISTING TOPICS: ${JSON.stringify(topics, null, 0)}
 
 NEW TOPIC:\n
 `;
-            const response = await createCompletion(prompt);
+            const response = await llmCompletion(prompt);
 
             const rawTopic = response.choices[0]?.message?.content?.trim() || 'No topic available';
             const topic = rawTopic.startsWith('NEW TOPIC:') ? rawTopic.replace('NEW TOPIC:', '').trim() : rawTopic;

@@ -3,6 +3,7 @@ export interface ContentSet {
   grade: number;
   topic: string;
   text: string;
+  image: string | undefined | null;
   challenges: Challenge[];
 }
 

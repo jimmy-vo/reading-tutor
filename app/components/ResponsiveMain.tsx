@@ -104,7 +104,7 @@ const ResponsiveMain: React.FC<ResponsiveMainProps> = ({
   return (
     <div className={`${styles.responsiveContainer} ${className}`}>
       <div ref={textContainerRef} className={styles.textContainer}>
-        <PassageContainer topic={contentSet.topic} text={contentSet.text} />
+        <PassageContainer topic={contentSet.topic} imageId={contentSet.image} text={contentSet.text} />
       </div>
       <div className={styles.divider} ref={dividerRef} />
       <div className={styles.challengesContainer} ref={challengesContainerRef}>

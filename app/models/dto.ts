@@ -36,3 +36,7 @@ export interface GenerateContentInput {
   topic: string;
   level: number;
 }
+
+export interface GenerateImageOutput {
+  id: string;
+}

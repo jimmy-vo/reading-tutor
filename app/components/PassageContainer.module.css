@@ -1,13 +1,27 @@
+.container {
+  padding: 10px;
+}
+
 .title {
-  color: #ff69b4;
-  font-size: 1.3em;
+  font-size: 24px;
+  font-weight: bold;
   text-align: center;
-  user-select: none;
 }
 
 .paragraph {
-  color: #00008b;
-  font-size: 1.2em;
-  margin-bottom: 20px;
-  user-select: none;
+  font-size: 16px;
+  text-align: justify;
+}
+
+.spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
 }
