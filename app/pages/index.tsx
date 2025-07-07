@@ -6,16 +6,8 @@ import Spinner from '../components/Spinner';
 import VictoryAnimation from '../components/VictoryAnimation';
 import { ContentSet } from '../models/view';
 import { Drawer } from '../components/Drawer';
-import { GradeStorage, HistoryStorage } from '../services/storageService';
 import { ContentClient } from '../services/clientSerivce';
-import {
-  appendHistory,
-  generateNewContent,
-  getActiveContentStorage,
-  resetHistory,
-  updateFromHistory,
-  updateHistory,
-} from '../services/appService';
+import { AppService as AppService } from '../services/appService';
 
 export interface Answer {
   id: string;
@@ -25,8 +17,6 @@ export interface Answer {
 
 export default function Home() {
   const [history, setHistory] = useState<ContentSet[]>([]);
-  const [grade, setGrade] = useState<number>(0);
-  const [activeItem, setActiveItem] = useState<ContentSet>();
   const [selectedItem, setSelectedItem] = useState<ContentSet>();
   const [loading, setLoading] = useState(true);
   const [congratAnimation, setShowCongrats] = useState(0);
@@ -37,12 +27,7 @@ export default function Home() {
       while (typeof window === 'undefined') {
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
-      setHistory(HistoryStorage.read());
-      setGrade(GradeStorage.read());
-      const activeContent = await getActiveContentStorage(history, grade);
-      setActiveItem(activeContent);
-      setSelectedItem(activeContent);
-      onPostCreate(activeContent);
+      await handleGetAll(true);
     };
 
     fetchData();
@@ -74,22 +59,22 @@ export default function Home() {
   const handleReset = async () => {
     setLoading(true);
     setDrawerOpen(false);
-    resetHistory();
-    setHistory([]);
-    await handleNext();
-  };
-
-  const onPostCreate = (contentSet: ContentSet) => {
-    setActiveItem(contentSet);
-    setSelectedItem(contentSet);
-    setLoading(false);
+    AppService.reset();
+    await handleGetAll(true);
   };
 
   const handleNext = async () => {
+    console.info(`Generate next content`);
+    handleGetAll(true);
+  };
+
+  const handleGetAll = async (generate: boolean) => {
     setLoading(true);
-    console.info(`Generate next content for Grade ${grade}`);
-    const contentSet = await generateNewContent(history, grade);
-    onPostCreate(contentSet);
+    const newHistory = await AppService.getAll(generate);
+    const activeContent = newHistory[0];
+    setHistory(newHistory);
+    setSelectedItem(activeContent);
+    setLoading(false);
   };
 
   const handleSubmit = async (newContentSet: ContentSet) => {
@@ -100,79 +85,51 @@ export default function Home() {
     setLoading(false);
 
     const newItem: ContentSet = {
+      topic: selectedItem.topic,
       grade: newContentSet.grade,
       text: selectedItem.text,
-      topic: selectedItem.topic,
       image: undefined,
       challenges: evaluationResult,
     };
-    setActiveItem(newItem);
-    setSelectedItem(newItem);
-    const newHistory = appendHistory(newItem);
-    setHistory(newHistory);
-
-    if (updateFromHistory(newHistory)) {
-      setGrade(GradeStorage.read());
-    }
-
+    AppService.update(newItem);
+    handleGetAll(false);
     const allCorrect =
       evaluationResult.filter((x) => x.correct === true).length ==
       evaluationResult.length;
 
     if (!allCorrect) return;
-    console.info('All answers are correct');
-    await new Promise<void>((resolve) => {
-      console.info('Congrats!!!');
-      setShowCongrats(50);
-      // set image to null to display loading
-      const newItemWithLoadingImage: ContentSet = {
-        grade: newContentSet.grade,
-        text: selectedItem.text,
-        topic: selectedItem.topic,
-        image: null,
-        challenges: evaluationResult,
-      };
-      setActiveItem(newItemWithLoadingImage);
-      setSelectedItem(newItemWithLoadingImage);
-      resolve();
-    }).then(() => {
-      console.info('Generating image...');
-      return ContentClient.getImage(newContentSet)
-        .then((imageId) => {
-          console.info('Get the image...');
-          // set the image id when it is ready
-          const newItemWithImage: ContentSet = {
-            grade: newContentSet.grade,
-            text: selectedItem.text,
-            topic: selectedItem.topic,
-            image: imageId,
-            challenges: evaluationResult,
-          };
-          setActiveItem(newItemWithImage);
-          setSelectedItem(newItemWithImage);
-          setHistory(updateHistory(newItemWithImage));
-        })
-        .catch((e) => {
-          console.error(e);
-          console.info('Reset image id');
-          // reset image
-          const newItemWithoutImage: ContentSet = {
-            grade: newContentSet.grade,
-            text: selectedItem.text,
-            topic: selectedItem.topic,
-            image: undefined,
-            challenges: evaluationResult,
-          };
-          setActiveItem(newItemWithoutImage);
-          setSelectedItem(newItemWithoutImage);
-        });
-    });
+
+    console.info('Congrats!!!');
+    setShowCongrats(50);
+    // set image to null to display loading
+    let workingItem: ContentSet = {
+      grade: newContentSet.grade,
+      text: newItem.text,
+      topic: newItem.topic,
+      image: null,
+      challenges: newItem.challenges,
+    };
+    setSelectedItem(AppService.update(workingItem));
+
+    console.info('Generating image...');
+    return ContentClient.getImage(workingItem)
+      .then((imageId) => {
+        console.info('Get the image...');
+        workingItem.image = imageId;
+        setSelectedItem(AppService.update(workingItem));
+      })
+      .catch((e) => {
+        console.error(e);
+        console.info('Reset image id');
+        workingItem.image = undefined;
+        setSelectedItem(AppService.update(workingItem));
+      });
   };
 
   const toggleDrawer = () => setDrawerOpen(!isDrawerOpen);
 
   const handleSelect = (topic: string) => {
-    setSelectedItem([...history, activeItem!].find((x) => x.topic === topic));
+    setSelectedItem(history.find((x) => x.topic === topic));
     setDrawerOpen(false);
   };
 
@@ -181,7 +138,7 @@ export default function Home() {
   const showOveray = showSpiner || showCongrats;
 
   const hasEvaluation =
-    selectedItem?.challenges?.every((x) => x.correct !== undefined) ?? false;
+    history[0]?.challenges?.every((x) => x.correct !== undefined) ?? false;
 
   return (
     <div>
@@ -211,16 +168,10 @@ export default function Home() {
               onSelect={handleSelect}
               onResetTap={handleReset}
               history={history}
-              current={activeItem}
+              topic={selectedItem.topic}
             />
           </div>
-          {true && (
-            <ProgressBar
-              history={history}
-              grade={grade}
-              showCurrent={!hasEvaluation}
-            />
-          )}
+          {true && <ProgressBar history={history} />}
           <ContentComponent
             className={styles.mainContainer}
             item={selectedItem!}

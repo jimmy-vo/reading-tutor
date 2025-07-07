@@ -50,7 +50,7 @@ async function generateImage(content: Content): Promise<GenerateImageOutput> {
     if (!description) throw new Error('Failed to generate image description after 3 attempts');
 
     if (Env.Disfusion.mockedApi !== undefined) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 500));
         if (!Env.Disfusion.mockedApi) throw new Error();
 
         return { id: "mocked-id" };

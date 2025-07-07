@@ -6,14 +6,14 @@ import Button from './Button';
 
 interface DrawerProps {
   history: ContentSet[];
-  current: ContentSet;
+  topic: string;
   onSelect: (topic: string) => void;
   onResetTap: () => void;
 }
 
 export const Drawer: React.FC<DrawerProps> = ({
   history,
-  current,
+  topic,
   onSelect,
   onResetTap,
 }) => {
@@ -26,10 +26,7 @@ export const Drawer: React.FC<DrawerProps> = ({
   return (
     <div className={styles.container} aria-hidden="true">
       <ul className={styles.historyContainer}>
-        {[
-          ...(history.find((x) => x.topic === current.topic) ? [] : [current]),
-          ...history,
-        ].map((item, index) => (
+        {history.map((item, index) => (
           <li
             className={styles.historyItem}
             key={index}

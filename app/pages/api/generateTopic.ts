@@ -19,8 +19,8 @@ export default async function handler(
         if (grade === null) return res.status(400).json({ error: `Cannot get grade ${level}` });
 
         if (Env.Llm.mockedApi !== undefined) {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            return res.status(200).json({ topic: "Play in the garden" });
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return res.status(200).json({ topic: `Mock topic ${Date.now()}` });
         }
 
         try {

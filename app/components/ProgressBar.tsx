@@ -3,33 +3,29 @@ import styles from './ProgressBar.module.css';
 import { Grade } from '../models/backend';
 import { ContentSet } from '../models/view';
 import { Config } from '../services/configService';
-import { countAllCorrectInArrow } from '../services/appService';
+import { AppService } from '../services/appService';
 
 interface ProgressBarProps {
   history: ContentSet[];
-  grade: number;
-  showCurrent: boolean;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({
-  history,
-  grade: currentGrade,
-  showCurrent,
-}) => {
-  let currentCount = countAllCorrectInArrow(history, currentGrade);
-
+const ProgressBar: React.FC<ProgressBarProps> = ({ history }) => {
+  const hasNotVerified =
+    history[0]?.challenges?.every((x) => x.correct !== undefined) ?? false;
+  const currentGrade = history[0]?.grade ?? 0;
+  let currentCount = AppService.countAllCorrectInArrow(history, currentGrade);
+  console.log('------', 'count', currentCount, 'grade', currentGrade, history);
   const getClassName = (grade: Grade, index: number) => {
     let name = styles.milestone;
     if (index == 1) {
       name += ' ' + styles.bigMilestone;
     }
     if (grade.id < currentGrade) return name + ' ' + styles.completed;
+    if (grade.id > currentGrade) return name;
 
-    if (grade.id === currentGrade) {
-      if (index === currentCount + 1)
-        return name + ' ' + (showCurrent ? styles.current : '');
-      if (index <= currentCount) return name + ' ' + styles.completed;
-    }
+    if (index === currentCount + 1)
+      return name + ' ' + (!hasNotVerified ? styles.current : '');
+    if (index < currentCount + 1) return name + ' ' + styles.completed;
     return name;
   };
 
