@@ -27,7 +27,8 @@ export default function Home() {
       while (typeof window === 'undefined') {
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
-      await handleGetAll(true);
+      const activeContent = await handleGetAll(true);
+      setSelectedItem(activeContent);
     };
 
     fetchData();
@@ -60,21 +61,25 @@ export default function Home() {
     setLoading(true);
     setDrawerOpen(false);
     AppService.reset();
-    await handleGetAll(true);
+    const activeContent = await handleGetAll(true);
+    setSelectedItem(activeContent);
   };
 
   const handleNext = async () => {
     console.info(`Generate next content`);
-    handleGetAll(true);
+    const activeContent = await handleGetAll(true);
+    setSelectedItem(activeContent);
   };
 
-  const handleGetAll = async (generate: boolean) => {
+  const handleGetAll = async (generate: boolean): Promise<ContentSet> => {
     setLoading(true);
     const newHistory = await AppService.getAll(generate);
-    const activeContent = newHistory[0];
     setHistory(newHistory);
-    setSelectedItem(activeContent);
     setLoading(false);
+
+    if (!generate) return null;
+    const activeContent = newHistory[0];
+    return activeContent;
   };
 
   const handleSubmit = async (newContentSet: ContentSet) => {
@@ -93,11 +98,7 @@ export default function Home() {
     };
     AppService.update(newItem);
     handleGetAll(false);
-    const allCorrect =
-      evaluationResult.filter((x) => x.correct === true).length ==
-      evaluationResult.length;
-
-    if (!allCorrect) return;
+    if (!evaluationResult.every((x) => x.correct === true)) return;
 
     console.info('Congrats!!!');
     setShowCongrats(50);
@@ -110,7 +111,6 @@ export default function Home() {
       challenges: newItem.challenges,
     };
     setSelectedItem(AppService.update(workingItem));
-
     console.info('Generating image...');
     return ContentClient.getImage(workingItem)
       .then((imageId) => {
@@ -129,6 +129,7 @@ export default function Home() {
   const toggleDrawer = () => setDrawerOpen(!isDrawerOpen);
 
   const handleSelect = (topic: string) => {
+    if (loading) return;
     setSelectedItem(history.find((x) => x.topic === topic));
     setDrawerOpen(false);
   };
@@ -143,15 +144,13 @@ export default function Home() {
   return (
     <div>
       {showOveray && (
-        <div className={styles.loadingOverlay}>
-          {showSpiner && <Spinner />}
-          {showCongrats && (
-            <VictoryAnimation
-              length={congratAnimation}
-              onAnimationEnd={() => setShowCongrats(0)}
-            />
-          )}
-        </div>
+        <div className={styles.loadingOverlay}>{showSpiner && <Spinner />}</div>
+      )}
+      {showCongrats && (
+        <VictoryAnimation
+          length={congratAnimation}
+          onAnimationEnd={() => setShowCongrats(0)}
+        />
       )}
       {selectedItem && (
         <div className={styles.container}>
