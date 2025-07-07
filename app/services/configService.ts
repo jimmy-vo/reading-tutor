@@ -89,11 +89,10 @@ export namespace Config {
         {
             id: 3,
             count: 6,
-            questions: 5,
+            questions: 6,
             topics: ["Fables", "Culture", "Science concepts", "Friendship"],
             passageFeatures: [
-                "100-200 words",
-                "1-2 paragraphs",
+                "1-2 paragraphs from 7 to 10 sentences",
                 "Short narratives or factual"
             ],
             questionFeatures: [

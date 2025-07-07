@@ -14,7 +14,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ history }) => {
     history[0]?.challenges?.every((x) => x.correct !== undefined) ?? false;
   const currentGrade = history[0]?.grade ?? 0;
   let currentCount = AppService.countAllCorrectInArrow(history, currentGrade);
-  console.log('------', 'count', currentCount, 'grade', currentGrade, history);
   const getClassName = (grade: Grade, index: number) => {
     let name = styles.milestone;
     if (index == 1) {
