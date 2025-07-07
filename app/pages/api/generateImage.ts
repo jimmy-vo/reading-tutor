@@ -11,9 +11,9 @@ export default async function handler(
     res: NextApiResponse
 ) {
     if (req.method === 'POST') {
-        const dto: Content = req.body as Content
+        const { prompt } = req.body;
         try {
-            const imageOutput = await generateImage(dto);
+            const imageOutput = await generateImage(prompt);
             res.status(200).json(imageOutput);
         } catch (error) {
             console.error(error);
@@ -28,26 +28,7 @@ export default async function handler(
     }
 }
 
-async function generateImageDescriptionPrompt(content: Content): Promise<string | null> {
-    const prompt = `${Date.now()}
-Your task is to generate a description in plain text for an PASSAGE inllustration within 5 sentences. 
-Look at the qna to describe the main subject of the image, then analyze the passage to describe background.
-The image must illustrate the passage and focus on what being asked.
-
-PASSAGE: ${content.text}
-QNA: ${JSON.stringify(content.qna.map(x => ({ question: x.question, answer: x.answer })), null, 0)}
-`;
-    const response = await llmCompletion(prompt);
-    return response.choices[0]?.message?.content?.trim() ?? null;
-}
-
-async function generateImage(content: Content): Promise<GenerateImageOutput> {
-    let description = '';
-    for (let i = 0; i < 3; i++) {
-        description = await generateImageDescriptionPrompt(content);
-        if (description !== null) break;
-    }
-    if (!description) throw new Error('Failed to generate image description after 3 attempts');
+async function generateImage(prompt: string): Promise<GenerateImageOutput> {
 
     if (Env.Disfusion.mockedApi !== undefined) {
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -56,7 +37,7 @@ async function generateImage(content: Content): Promise<GenerateImageOutput> {
         return { id: "mocked-id" };
 
     }
-    const base64Image = await imageComplettion(description);
+    const base64Image = await imageComplettion(prompt);
     const buffer = Buffer.from(base64Image, 'base64');
     const imageId = uuidv4();
     const imagePath = path.join(Env.imageStorage, `${imageId}.png`);

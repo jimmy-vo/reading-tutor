@@ -1,4 +1,4 @@
-import { Content, EvaluationOutput, GenerateContentInput, GenerateImageOutput, GenerateTopicInput } from "../models/dto";
+import { Content, EvaluationOutput, GenerateContentInput, GenerateImageOutput, GenerateTopicInput, ImagePromptInput } from "../models/dto";
 import { Challenge, ContentSet } from "../models/view";
 import axios from "axios"
 
@@ -24,18 +24,42 @@ export namespace ContentClient {
         throw new Error('Failed to fetch content after 3 attempts');
     };
 
+    const getImagePrompt = async (dto: ImagePromptInput): Promise<string> => {
+        let attempts = 0;
+        let promptResponse;
+
+        while (attempts < 3) {
+            try {
+                promptResponse = await axios.post('/api/generateImagePrompt', dto);
+                const prompt = (promptResponse.data as { prompt: string }).prompt;
+                return prompt;
+            } catch (error) {
+                console.error(error)
+                attempts++;
+            }
+        }
+
+        throw new Error('Failed to fetch image prompt after 3 attempts');
+    };
 
     export const getImage = async (contentSet: ContentSet): Promise<string> => {
         let attempts = 0;
         let imageResponse;
 
+        const dto: ImagePromptInput = {
+            text: contentSet.text,
+            qna: contentSet.challenges.map(x => ({ question: x.question, answer: x.expected, id: x.id })),
+            previousAttempts: []
+        }
         while (attempts < 3) {
             try {
-                const dto: Content = {
-                    text: contentSet.text,
-                    qna: contentSet.challenges.map(x => ({ question: x.question, answer: x.expected, id: x.id }))
-                }
-                imageResponse = await axios.post('/api/generateImage', dto);
+                const prompt = await getImagePrompt(dto);
+                dto.previousAttempts.push(prompt)
+                imageResponse = await axios.post('/api/generateImage', {
+                    text: dto.text,
+                    qna: dto.qna,
+                    prompt: prompt
+                });
                 const data = imageResponse.data as GenerateImageOutput;
                 return data.id;
             } catch (error) {

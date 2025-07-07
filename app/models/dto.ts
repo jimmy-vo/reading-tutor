@@ -9,6 +9,12 @@ export interface Content {
   qna: QnA[];
 }
 
+export interface ImagePromptInput extends Content {
+  text: string;
+  qna: QnA[];
+  previousAttempts: string[];
+}
+
 export interface EvaluationOutput {
   id: string;
   suggestion: string;

@@ -44,9 +44,9 @@ export namespace AppService {
     export const update = (contentSet: ContentSet): ContentSet => {
         const history = HistoryStorage.read();
         const index = history.findIndex((x) => x.topic == contentSet.topic);
-        history[index] = contentSet;
+        history[index] = JSON.parse(JSON.stringify(contentSet)) as ContentSet;
         HistoryStorage.write(history);
-        return contentSet;
+        return history[index];
     }
 
     export const reset = (): void => {
