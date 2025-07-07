@@ -10,14 +10,14 @@ export namespace Env {
         export const azureOpenaiChatEndpoint = process.env.AZURE_OPENAI_CHAT_ENDPOINT;
         export const azureOpenaiChatDeployment = process.env.AZURE_OPENAI_CHAT_DEPLOYMENT;
         export const enabled = azureOpenaiChatApiKey && azureOpenaiChatEndpoint && azureOpenaiChatDeployment;
-        export const mockedApi: boolean | undefined = undefined;
+        export const mockedApi: boolean | undefined = true;
     }
     export namespace Disfusion {
         export const azureOpenaiImageApiKey = process.env.AZURE_OPENAI_IMAGE_API_KEY;
         export const azureOpenaiImageEndpoint = process.env.AZURE_OPENAI_IMAGE_ENDPOINT;
         export const azureOpenaiImageDeployment = process.env.AZURE_OPENAI_IMAGE_DEPLOYMENT;
         export const enabled = azureOpenaiImageApiKey && azureOpenaiImageEndpoint && azureOpenaiImageDeployment;
-        export const mockedApi: boolean | undefined = undefined;
+        export const mockedApi: boolean | undefined = true;
     }
 }
 

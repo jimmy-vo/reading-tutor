@@ -1,0 +1,7 @@
+.word {
+  display: inline-block;
+  margin-right: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

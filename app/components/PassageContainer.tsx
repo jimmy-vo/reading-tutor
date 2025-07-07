@@ -1,7 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
+import { useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import styles from './PassageContainer.module.css';
 import Spinner from './Spinner';
+import WordComponent from './WordComponent';
 
 interface PassageContainerProps {
   topic: string;
@@ -31,11 +33,26 @@ const PassageContainer: React.FC<PassageContainerProps> = ({
       });
     }
   };
-
   return (
     <div ref={componentRef} className={styles.container}>
-      <p className={styles.title}> {topic} </p>
-      <p className={styles.paragraph}> {text} </p>
+      <p className={styles.title}>
+        {topic.split(' ').map((word, index) => (
+          <WordComponent
+            key={index}
+            word={word}
+            index={index}
+          />
+        ))}
+      </p>
+      <p className={styles.paragraph}>
+        {text.split(' ').map((word, index) => (
+          <WordComponent
+            key={index}
+            word={word}
+            index={index}
+          />
+        ))}
+      </p>
       {(() => {
         switch (true) {
           case imageId === null:
