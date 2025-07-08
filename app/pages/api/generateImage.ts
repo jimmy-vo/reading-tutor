@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { imageComplettion, llmCompletion } from '../../services/openaiService';
+import { imageComplettion } from '../../services/openaiService';
 import { v4 as uuidv4 } from 'uuid';
-import { GenerateImageOutput, Content } from '../../models/dto';
+import { GenerateImageOutput } from '../../models/dto';
 import fs from 'fs';
 import { Env } from '../../services/configService';
 import path from 'path';

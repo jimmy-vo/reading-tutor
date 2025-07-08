@@ -3,10 +3,9 @@ import styles from './WordComponent.module.css';
 
 interface WordComponentProps {
   word: string;
-  index: number;
 }
 
-const WordComponent: React.FC<WordComponentProps> = ({ word, index }) => {
+const WordComponent: React.FC<WordComponentProps> = ({ word }) => {
   const handleMouseOver = () => {
     const utterance = new SpeechSynthesisUtterance(word);
     window.speechSynthesis.speak(utterance);

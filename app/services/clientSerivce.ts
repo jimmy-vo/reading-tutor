@@ -17,6 +17,7 @@ export namespace ContentClient {
                 contentResponse = await axios.post('/api/generateContent', dto);
                 return contentResponse.data as Content;
             } catch (error) {
+                console.error(error)
                 attempts++;
             }
         }

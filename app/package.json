@@ -1,5 +1,6 @@
 {
   "name": "reading-turor",
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,8 +11,11 @@
     "@azure/openai": "^2.0.0",
     "@types/axios": "^0.9.36",
     "@types/dotenv": "^6.1.1",
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "@typescript-eslint/parser": "^8.36.0",
     "axios": "^1.10.0",
     "dotenv": "^17.0.0",
+    "eslint-define-config": "^2.1.0",
     "html2canvas": "^1.4.1",
     "next": "^15.3.4",
     "openai": "^5.8.2",
@@ -22,8 +26,9 @@
   "devDependencies": {
     "@types/node": "24.0.8",
     "@types/react": "19.1.8",
-    "eslint": "^9.30.0",
-    "eslint-config-next": "^15.3.4",
-    "typescript": "5.8.3"
+    "eslint": "^9.30.1",
+    "eslint-config-next": "^15.3.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }

@@ -6,14 +6,12 @@ import Button from './Button';
 
 interface DrawerProps {
   history: ContentSet[];
-  topic: string;
   onSelect: (topic: string) => void;
   onResetTap: () => void;
 }
 
 export const Drawer: React.FC<DrawerProps> = ({
   history,
-  topic,
   onSelect,
   onResetTap,
 }) => {

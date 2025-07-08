@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { llmCompletion } from '../../services/openaiService';
-import { Content, ImagePromptInput } from '../../models/dto';
+import { ImagePromptInput } from '../../models/dto';
 
 export default async function handler(
     req: NextApiRequest,

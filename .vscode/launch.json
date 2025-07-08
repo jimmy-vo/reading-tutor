@@ -11,8 +11,9 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "cwd": "${workspaceFolder}/app",
+      "envFile": "${workspaceFolder}/app/.env",
       "env": {
-        "NODE_ENV":  "development"
+        "NODE_ENV": "development"
       }
     },
     {

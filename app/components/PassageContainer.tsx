@@ -1,5 +1,4 @@
-import React, { useRef, useState } from 'react';
-import { useEffect } from 'react';
+import React, { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import styles from './PassageContainer.module.css';
 import Spinner from './Spinner';
@@ -37,20 +36,12 @@ const PassageContainer: React.FC<PassageContainerProps> = ({
     <div ref={componentRef} className={styles.container}>
       <p className={styles.title}>
         {topic.split(' ').map((word, index) => (
-          <WordComponent
-            key={index}
-            word={word}
-            index={index}
-          />
+          <WordComponent key={index} word={word} />
         ))}
       </p>
       <p className={styles.paragraph}>
         {text.split(' ').map((word, index) => (
-          <WordComponent
-            key={index}
-            word={word}
-            index={index}
-          />
+          <WordComponent key={index} word={word} />
         ))}
       </p>
       {(() => {

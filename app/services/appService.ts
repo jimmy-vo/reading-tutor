@@ -10,7 +10,7 @@ export namespace AppService {
         let current: ContentSet | undefined = history.find(x => !x.challenges.every(c => c.correct !== undefined));
         if (current) {
             if (current.grade !== gradeId && generate) {
-                history = history.filter(x => current)
+                history = history.filter(x => x !== current);
                 HistoryStorage.write(history);
             } else {
                 console.debug("AppService.getAll: found", history)

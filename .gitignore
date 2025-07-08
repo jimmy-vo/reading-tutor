@@ -26,3 +26,4 @@ jspm_packages/
 Thumbs.db
 app-win32-x64.zip
 volume/*
+*/tsconfig.tsbuildinfo
