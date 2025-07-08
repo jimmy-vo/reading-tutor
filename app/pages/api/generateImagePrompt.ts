@@ -36,7 +36,7 @@ Your task is to generate an IMAGE DESCRIPTION in plain text for an PASSAGE inllu
 Look at the qna to describe the main subject of the image, then analyze the passage to describe background.
 The image must illustrate the passage and focus on what being asked.
 The IMAGE DESCRIPTION doesn't mention the instruction above or this task's requirement. And must be understandable without PASSAGE or QNA.
-PASSAGE: ${dto.text}
+PASSAGE: ${dto.passage}
 QNA: ${JSON.stringify(dto.qna.map(x => ({ question: x.question, answer: x.answer })), null, 0)}
 ${previousAttemptString}
 IMAGE DESCRIPTION:

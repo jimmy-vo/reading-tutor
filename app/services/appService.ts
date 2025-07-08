@@ -18,7 +18,7 @@ export namespace AppService {
             }
         }
 
-        const grade = Config.getGrade(gradeId);
+        const grade = Config.grades.find(x => x.id === gradeId);
         if (countAllCorrectInArrow(history, gradeId) >= grade.count) {
             console.debug("AppService.getAll: all correct in a row!")
             gradeId += 1;
@@ -82,7 +82,7 @@ export namespace AppService {
         const contentSet: ContentSet = {
             topic: topic,
             grade: grade,
-            text: content.text,
+            text: content.passage,
             image: undefined,
             challenges: content.qna.map(x => ({
                 id: x.id,

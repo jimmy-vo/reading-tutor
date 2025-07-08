@@ -47,7 +47,7 @@ export namespace ContentClient {
         let imageResponse;
 
         const dto: ImagePromptInput = {
-            text: contentSet.text,
+            passage: contentSet.text,
             qna: contentSet.challenges.map(x => ({ question: x.question, answer: x.expected, id: x.id })),
             previousAttempts: []
         }
@@ -56,7 +56,7 @@ export namespace ContentClient {
                 const prompt = await getImagePrompt(dto);
                 dto.previousAttempts.push(prompt)
                 imageResponse = await axios.post('/api/generateImage', {
-                    text: dto.text,
+                    text: dto.passage,
                     qna: dto.qna,
                     prompt: prompt
                 });

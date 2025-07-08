@@ -15,8 +15,8 @@ export default async function handler(
             res.status(400).json({ error: 'Invalid topics list' });
             return;
         }
-        const grade = Config.getGrade(level);
-        if (grade === null) return res.status(400).json({ error: `Cannot get grade ${level}` });
+        const grade = Config.grades.find(x=> x.id === level);
+        if (grade === undefined) return res.status(400).json({ error: `Cannot get grade ${level}` });
 
         if (Env.Llm.mockedApi !== undefined) {
             await new Promise(resolve => setTimeout(resolve, 500));

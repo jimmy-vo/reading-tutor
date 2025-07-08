@@ -22,15 +22,6 @@ export namespace Env {
 }
 
 export namespace Config {
-
-    export function getGrade(num: number): Grade | null {
-        try {
-            return Config.grades.find(grade => grade.id === num)!;
-        } catch (error) {
-            console.error(error)
-            return null;
-        }
-    }
     export const grades: Grade[] = [
         {
             id: 0,
@@ -49,7 +40,7 @@ export namespace Config {
         {
             id: 1,
             count: 4,
-            questions: 5,
+            questions: 3,
             topics: ["Home", "Animals", "School", "Family", "Weather", "Playtime"],
             passageFeatures: [
                 "6 simple sentences",

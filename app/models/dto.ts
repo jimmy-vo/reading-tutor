@@ -5,13 +5,11 @@ export interface QnA {
 }
 
 export interface Content {
-  text: string;
+  passage: string;
   qna: QnA[];
 }
 
 export interface ImagePromptInput extends Content {
-  text: string;
-  qna: QnA[];
   previousAttempts: string[];
 }
 
