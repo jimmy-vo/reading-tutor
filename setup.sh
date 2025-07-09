@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# Define the home directory variable
 HOME_DIR="${1:-$(pwd)}"
 echo "Set up for $HOME_DIR"
+
+echo "set up git"
+sudo git config --system --add safe.directory 
 
 sudo systemctl stop reading-tutor
 sudo systemctl disable reading-tutor
@@ -28,7 +30,6 @@ ExecStop=/usr/bin/docker compose down
 WantedBy=multi-user.target
 EOF"
 
-# Set permission for start.sh to make it executable
 chmod +x $HOME_DIR/start.sh
 
 echo "Reload systemd to apply the new service"
