@@ -25,6 +25,7 @@ const ResponsiveMain: React.FC<ResponsiveMainProps> = ({
   const dividerRef = useRef<HTMLDivElement>(null);
 
   const [isSubmitDisabled, setSubmitDisabled] = useState(true);
+  const [isSubmitting, setSubmitting] = useState(false);
   useEffect(() => {
     const observer = new ResizeObserver((entries) => {
       for (let entry of entries) {
@@ -98,19 +99,26 @@ const ResponsiveMain: React.FC<ResponsiveMainProps> = ({
 
   const handleSubmit = async () => {
     setSubmitDisabled(true);
+    setSubmitting(true);
     await onSubmit(contentSet);
+    setSubmitting(false);
   };
 
   return (
     <div className={`${styles.responsiveContainer} ${className}`}>
       <div ref={textContainerRef} className={styles.textContainer}>
-        <PassageContainer topic={contentSet.topic} imageId={contentSet.image} text={contentSet.text} />
+        <PassageContainer
+          topic={contentSet.topic}
+          imageId={contentSet.image}
+          text={contentSet.text}
+        />
       </div>
       <div className={styles.divider} ref={dividerRef} />
       <div className={styles.challengesContainer} ref={challengesContainerRef}>
         <PassageChallenges
           onChanged={handleAnswerChanged}
           challenges={contentSet.challenges}
+          isSubmitting={isSubmitting}
         />
         <ContentController
           className={styles.buttonContainer}

@@ -71,11 +71,18 @@ export default function Home() {
     setSelectedItem(activeContent);
   };
 
-  const handleGetAll = async (generate: boolean): Promise<ContentSet> => {
-    setLoading(true);
+  const handleGetAll = async (
+    generate: boolean,
+    updateLoading: boolean = true,
+  ): Promise<ContentSet> => {
+    if (updateLoading) {
+      setLoading(true);
+    }
     const newHistory = await AppService.getAll(generate);
     setHistory(newHistory);
-    setLoading(false);
+    if (updateLoading) {
+      setLoading(false);
+    }
 
     if (!generate) return null;
     const activeContent = newHistory[0];
@@ -85,9 +92,7 @@ export default function Home() {
   const handleSubmit = async (newContentSet: ContentSet) => {
     if (!selectedItem) return;
 
-    setLoading(true);
     const evaluationResult = await ContentClient.getEvaluation(newContentSet);
-    setLoading(false);
 
     const newItem: ContentSet = {
       topic: selectedItem.topic,
@@ -97,7 +102,7 @@ export default function Home() {
       challenges: evaluationResult,
     };
     AppService.update(newItem);
-    handleGetAll(false);
+    handleGetAll(false, false);
     if (!evaluationResult.every((x) => x.correct === true)) return;
 
     console.info('Congrats!!!');

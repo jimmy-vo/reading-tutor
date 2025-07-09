@@ -25,3 +25,12 @@
   margin-right: 10px;
   user-select: none;
 }
+
+.answer {
+  display: flex;
+  align-items: center;
+}
+
+.answerVerification {
+  width: 16;
+}

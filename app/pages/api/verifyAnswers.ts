@@ -29,13 +29,13 @@ export default async function handler(
     const input: EvaluationInput = req.body as EvaluationInput;
 
     if (Env.Llm.mockedApi !== undefined) {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 5000));
       return res
         .status(200)
         .send(input.qna.map(x => ({
           id: x.id,
           suggestion: "",
-          correct: Env.Llm.mockedApi 
+          correct: Env.Llm.mockedApi
         })))
     }
 
