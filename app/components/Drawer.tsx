@@ -6,6 +6,7 @@ import Button from './Button';
 
 interface DrawerProps {
   history: ContentSet[];
+  topic: string;
   onSelect: (topic: string) => void;
   onResetTap: () => void;
 }
