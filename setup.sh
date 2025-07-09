@@ -3,9 +3,6 @@
 HOME_DIR="${1:-$(pwd)}"
 echo "Set up for $HOME_DIR"
 
-echo "set up git"
-sudo git config --system --add safe.directory 
-
 sudo systemctl stop reading-tutor
 sudo systemctl disable reading-tutor
 sudo rm /etc/systemd/system/reading-tutor.service
@@ -22,7 +19,6 @@ After=network.target
 Type=oneshot
 RemainAfterExit=yes
 WorkingDirectory=$HOME_DIR
-ExecStartPre=/usr/bin/git pull
 ExecStart=/usr/bin/docker compose up --build -d 
 ExecStop=/usr/bin/docker compose down
 
