@@ -1,10 +1,11 @@
 #!/bin/bash
 
 # Define the home directory variable
-HOME_DIR="$(dirname "$(readlink -f "$0")")"
+HOME_DIR="${1:-$(pwd)}"
+echo "Set up for $HOME_DIR"
 
 # Create systemd service file for Reading Tutor App
-sudo bash -c 'cat <<EOF > /etc/systemd/system/reading-tutor.service
+sudo bash -c "cat <<EOF > /etc/systemd/system/reading-tutor.service
 [Unit]
 Description=Reading Tutor App
 After=network.target
@@ -18,7 +19,7 @@ ExecStop=/usr/bin/docker compose down
 
 [Install]
 WantedBy=multi-user.target
-EOF'
+EOF"
 
 # Set permission for start.sh to make it executable
 chmod +x $HOME_DIR/start.sh
