@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { llmCompletion } from '../../services/openaiService';
 import { GenerateTopicInput } from '../../models/dto';
-import { Config, Env } from '../../services/configService';
+import { Env } from '../../services/configService';
 
 
 export default async function handler(
@@ -15,7 +15,7 @@ export default async function handler(
             res.status(400).json({ error: 'Invalid topics list' });
             return;
         }
-        const grade = Config.grades.find(x=> x.id === level);
+        const grade = Env.grades.find(x => x.id === level);
         if (grade === undefined) return res.status(400).json({ error: `Cannot get grade ${level}` });
 
         if (Env.Llm.mockedApi !== undefined) {

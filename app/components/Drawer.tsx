@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './Drawer.module.css';
 import { ContentSet } from '../models/view';
-import { getShowResetFromStorage } from '../services/configService';
+import { Env } from '../services/configService';
 import Button from './Button';
 
 interface DrawerProps {
@@ -19,7 +19,7 @@ export const Drawer: React.FC<DrawerProps> = ({
   const [showReset, setShowReset] = useState(false);
 
   useEffect(() => {
-    setShowReset(getShowResetFromStorage());
+    setShowReset(Env.getShowResetFromStorage());
   }, []);
 
   return (

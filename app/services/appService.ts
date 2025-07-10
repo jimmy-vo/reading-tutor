@@ -1,7 +1,7 @@
 import { ContentClient } from './clientSerivce';
 import { ContentSet } from '../models/view';
-import { Config } from './configService';
 import { HistoryStorage, GradeStorage, ContentStorage } from './storageService';
+import { Env } from './configService';
 
 export namespace AppService {
     export const getAll = async (generate: boolean): Promise<ContentSet[]> => {
@@ -18,7 +18,7 @@ export namespace AppService {
             }
         }
 
-        const grade = Config.grades.find(x => x.id === gradeId);
+        const grade = Env.grades.find(x => x.id === gradeId);
         if (countAllCorrectInArrow(history, gradeId) >= grade.count) {
             console.debug("AppService.getAll: all correct in a row!")
             gradeId += 1;

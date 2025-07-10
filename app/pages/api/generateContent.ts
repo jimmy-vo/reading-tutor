@@ -1,7 +1,7 @@
 import { llmCompletion } from '../../services/openaiService';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Content, GenerateContentInput, } from '../../models/dto';
-import { Config, Env } from '../../services/configService';
+import { Env } from '../../services/configService';
 import { Grade } from '../../models/backend';
 
 const example: Content = {
@@ -29,12 +29,12 @@ export default async function handler(
       await new Promise(resolve => setTimeout(resolve, 500));
       res.status(200).json(example);
     }
-    const grade = Config.grades.find(grade => grade.id === level);
+    const grade = Env.grades.find(grade => grade.id === level);
 
     if (grade === undefined) return res.status(400).json({ error: `Cannot get grade ${level}` });
 
-    const previousGrade: Grade | undefined = Config.grades.find(grade => grade.id === level - 1);
-    const nextGrade: Grade | undefined = Config.grades.find(grade => grade.id === level + 1);
+    const previousGrade: Grade | undefined = Env.grades.find(grade => grade.id === level - 1);
+    const nextGrade: Grade | undefined = Env.grades.find(grade => grade.id === level + 1);
 
     const previousGradeRequirement = previousGrade === undefined
       ? ""

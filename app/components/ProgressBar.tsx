@@ -2,8 +2,8 @@ import React from 'react';
 import styles from './ProgressBar.module.css';
 import { Grade } from '../models/backend';
 import { ContentSet } from '../models/view';
-import { Config } from '../services/configService';
 import { AppService } from '../services/appService';
+import { Env } from '../services/configService';
 
 interface ProgressBarProps {
   history: ContentSet[];
@@ -30,7 +30,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ history }) => {
 
   return (
     <div className={styles.container} aria-hidden="true">
-      {Config.grades.map((grade) => (
+      {Env.grades.map((grade) => (
         <React.Fragment key={`grade-fragment-${grade.id}`}>
           {Array.from({ length: grade.count }).map((_, index) => (
             <div key={index} className={getClassName(grade, index + 1)}>
