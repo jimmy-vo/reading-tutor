@@ -1,4 +1,5 @@
 import { ContentClient } from './clientSerivce';
+import { InactiveTrackerService } from './inactiveTrackerService';
 import { ContentSet } from '../models/view';
 import { HistoryStorage, GradeStorage, ContentStorage } from './storageService';
 import { Env } from './configService';
@@ -14,7 +15,8 @@ export namespace AppService {
                 HistoryStorage.write(history);
             } else {
                 console.debug("AppService.getAll: found", history)
-                return history
+                InactiveTrackerService.start();
+                return history;
             }
         }
 
@@ -24,9 +26,14 @@ export namespace AppService {
             gradeId += 1;
             GradeStorage.write(gradeId)
         }
-        if (!generate) return history;
+        if (!generate) {
+            InactiveTrackerService.start();
+            return history;
+        }
         console.debug("AppService.getAll: Add new item")
         current = await generateNewContent(history, gradeId);
+
+        InactiveTrackerService.start();
         return Add(current)
     }
 

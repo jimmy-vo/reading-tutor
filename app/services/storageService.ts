@@ -1,5 +1,19 @@
 import { ContentSet } from "../models/view";
 
+export namespace InactiveTrackerStorage {
+    const KEY = 'inactiveTime';
+    const defaultValue: number = 60 * 4
+    export const read = (): number => {
+        console.debug("InactiveTrackerStorage.read")
+        const inactiveTime = localStorage.getItem(KEY);
+        if (!inactiveTime) {
+            localStorage.setItem(KEY, defaultValue.toString());
+            return defaultValue;
+        }
+        return parseInt(inactiveTime, 10);
+    };
+}
+
 export namespace ContentStorage {
     const ACTIVE_CONTENT_KEY = "content";
     export const read = (): ContentSet | null => {

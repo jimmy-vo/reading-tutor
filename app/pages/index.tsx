@@ -1,5 +1,6 @@
 import ContentComponent from '../components/ResponsiveMain';
 import ProgressBar from '../components/ProgressBar';
+import InactiveTracker from '../components/InactiveTracker';
 import styles from './index.module.css';
 import { useState, useEffect, useRef } from 'react';
 import Spinner from '../components/Spinner';
@@ -159,6 +160,7 @@ export default function Home() {
       )}
       {selectedItem && (
         <div className={styles.container}>
+          <ProgressBar history={history} />
           <button className={styles.hamburgerButton} onClick={toggleDrawer}>
             ☰
           </button>
@@ -175,7 +177,6 @@ export default function Home() {
               topic={selectedItem.topic}
             />
           </div>
-          {true && <ProgressBar history={history} />}
           <ContentComponent
             className={styles.mainContainer}
             item={selectedItem!}
@@ -183,6 +184,7 @@ export default function Home() {
             onSubmit={handleSubmit}
             onNext={handleNext}
           />
+          <InactiveTracker />
         </div>
       )}
     </div>
