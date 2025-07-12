@@ -5,13 +5,13 @@
 }
 
 .textContainer {
-  flex: 1;
+  /* flex: 1; */
   overflow-y: auto;
   user-select: none;
 }
 
 .divider {
-  width: 5px;
+  width: 2px;
   margin: 10px;
   background-color: #000000;
   cursor: ew-resize;
