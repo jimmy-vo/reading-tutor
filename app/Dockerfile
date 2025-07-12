@@ -1,30 +1,43 @@
-# Use the official Node.js image as the base image
-FROM node:24-alpine3.21
+# Stage 1: Build the application
+FROM node:24-alpine3.21 AS builder
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
 COPY package.json package-lock.json /app/
 
 
-# Install dependencies
-RUN npm install 
+RUN npm install
 
 COPY next-env.d.ts ./
 COPY tsconfig.json ./
 COPY .prettierrc ./
 COPY .eslintrc.json ./
 
-# Copy the rest of the application code to the working directory
 COPY models/ ./models
 COPY components/ ./components
 COPY public/ ./public
 COPY pages/ ./pages
 COPY services/ ./services
 
-# Build the application
-RUN npm run build 
+RUN npm run build
 
-# But this has error: reading-tutor  | sh: next: not found
+# Stage 2: Run the application
+FROM node:24-alpine3.21
+
+WORKDIR /app
+
+COPY --from=builder /app/package.json /app/package.json
+COPY --from=builder /app/package-lock.json /app/package-lock.json
+COPY --from=builder /app/node_modules /app/node_modules
+COPY --from=builder /app/next-env.d.ts ./
+COPY --from=builder /app/tsconfig.json ./
+COPY --from=builder /app/.prettierrc ./
+COPY --from=builder /app/.eslintrc.json ./
+COPY --from=builder /app/models ./models
+COPY --from=builder /app/components ./components
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/pages ./pages
+COPY --from=builder /app/services ./services
+COPY --from=builder /app/.next /app/.next
+
 CMD ["npm", "start"]

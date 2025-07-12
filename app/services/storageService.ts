@@ -36,7 +36,23 @@ export namespace HistoryStorage {
     export const read = (): ContentSet[] => {
         console.debug("HistoryStorage.read")
         const reports = localStorage.getItem(HISTORY_KEY);
-        return reports ? JSON.parse(reports) : [];
+        const history = reports ? JSON.parse(reports) : [];
+
+        const yesterday1am = new Date();
+        yesterday1am.setDate(yesterday1am.getDate() - 1);
+        yesterday1am.setHours(12, 0, 0, 0);
+
+        history.forEach((item, index) => {
+            if (!item.created) {
+                item.created = new Date(yesterday1am.getTime() - index * 60000);
+            } else {
+                // Convert to a Date if it's a string
+                item.created = new Date(item.created);
+            }
+        });
+
+        history.sort((a, b) => b.created!.getTime() - a.created!.getTime());
+        return history;
     };
 
     export const write = (history: ContentSet[]) => {
