@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { InactiveTrackerService } from '../services/inactiveTrackerService';
 import styles from './InactiveTracker.module.css';
 
-const InactiveTracker: React.FC = () => {
+interface InactiveTrackerProps {
+  className?: string;
+}
+
+const InactiveTracker: React.FC<InactiveTrackerProps> = ({ className }) => {
   const [progress, setProgress] = useState(100);
   const [audio, setAudio] = useState<HTMLAudioElement>();
 
@@ -27,7 +31,7 @@ const InactiveTracker: React.FC = () => {
   };
 
   return (
-    <div className={styles.progressBarContainer}>
+    <div className={className}>
       <div
         className={styles.progressBar}
         style={{

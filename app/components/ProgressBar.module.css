@@ -1,13 +1,4 @@
-.container {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  width: 100%;
-  justify-content: space-evenly;
-}
-
-.milestone {
+.dot {
   width: 10px;
   height: 10px;
   background-color: #4e4f51;
@@ -20,9 +11,38 @@
   font-size: 16px;
 }
 
-.bigMilestone {
+.dot span {
+  opacity: 0;
+  pointer-events: all;
+}
+
+.dot span::after {
+  content: attr(title);
+}
+/* 
+.dot span:hover::after {
+  opacity: 0;
+  display: block;
+} */
+
+.bigDot {
   width: 20px;
   height: 20px;
+}
+
+.historyItem {
+  height: 20px;
+  width: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.historyItem .dot {
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .current {

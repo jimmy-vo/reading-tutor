@@ -7,17 +7,21 @@ import { Env } from '../services/configService';
 
 interface ProgressBarProps {
   history: ContentSet[];
+  className?: string;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ history }) => {
+export const ProgressBar: React.FC<ProgressBarProps> = ({
+  history,
+  className,
+}) => {
   const hasNotVerified =
     history[0]?.challenges?.every((x) => x.correct !== undefined) ?? false;
   const currentGrade = history[0]?.grade ?? 0;
   let currentCount = AppService.countAllCorrectInArrow(history, currentGrade);
   const getClassName = (grade: Grade, index: number) => {
-    let name = styles.milestone;
+    let name = styles.dot;
     if (index == 1) {
-      name += ' ' + styles.bigMilestone;
+      name += ' ' + styles.bigDot;
     }
     if (grade.id < currentGrade) return name + ' ' + styles.completed;
     if (grade.id > currentGrade) return name;
@@ -29,7 +33,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ history }) => {
   };
 
   return (
-    <div className={styles.container} aria-hidden="true">
+    <div className={`${className}`} aria-hidden="true">
       {Env.grades.map((grade) => (
         <React.Fragment key={`grade-fragment-${grade.id}`}>
           {Array.from({ length: grade.count }).map((_, index) => (
@@ -43,4 +47,53 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ history }) => {
   );
 };
 
-export default ProgressBar;
+interface HistoryProps {
+  history: ContentSet[];
+  selectedTopic: string;
+  onSelect: (topic: string) => void;
+  className?: string;
+}
+
+export const HistoryBar: React.FC<HistoryProps> = ({
+  history,
+  selectedTopic,
+  onSelect,
+  className,
+}) => {
+  return (
+    <div className={className}>
+      {history
+        .toSorted((a, b) => a.created!.getTime() - b.created!.getTime())
+        .map((item, index) => {
+          const isCompleted = item.challenges.every((x) => x.correct);
+          const isCurrent = item.challenges.every(
+            (x) => x.correct === undefined,
+          );
+          const isSelected = item.topic === selectedTopic;
+          let dotClass = styles.dot;
+          if (isCurrent) {
+            dotClass += ' ' + styles.current;
+          }
+          if (isCompleted) {
+            dotClass += ' ' + styles.completed;
+          }
+
+          if (isSelected) {
+            dotClass += ' ' + styles.bigDot;
+          }
+
+          return (
+            <div className={styles.historyItem}>
+              <div
+                key={index}
+                className={dotClass}
+                onClick={() => onSelect(item.topic)}
+              >
+                <span title={item.topic}>{item.topic}</span>
+              </div>
+            </div>
+          );
+        })}
+    </div>
+  );
+};

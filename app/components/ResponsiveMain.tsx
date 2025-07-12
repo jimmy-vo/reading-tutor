@@ -35,7 +35,7 @@ const ResponsiveMain: React.FC<ResponsiveMainProps> = ({
         if (flexDirection === 'column' && textContainerRef.current) {
           textContainerRef.current.style.width = '';
           textContainerRef.current.style.flex = '';
-        } else {
+        } else if (textContainerRef.current) {
           textContainerRef.current.style.flex = '1';
         }
       }

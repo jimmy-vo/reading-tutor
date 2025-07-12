@@ -18,7 +18,7 @@
   pointer-events: none;
 }
 
-.mainContainer {
+.mainContent {
   background-color: #f0f8ff;
   padding: 50px 20px 20px;
   border-radius: 10px;
@@ -28,23 +28,6 @@
   margin-top: 20px;
   max-width: 1000px;
   flex: 1;
-}
-
-.scoreContainer {
-  margin: 20px;
-}
-
-.hamburgerButton {
-  position: fixed;
-  top: 40px;
-  left: 20px;
-  font-size: 24px;
-  cursor: pointer;
-  background-color: #fff;
-  border: none;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .container {
@@ -53,32 +36,30 @@
   height: 100vh;
 }
 
-.mainContainer {
-  background-color: #f0f8ff;
-  padding: 50px 20px 20px;
-  border-radius: 10px;
-  font-family: 'Comic Sans MS', cursive, sans-serif;
-  width: calc(100% - 60px - 40px);
-  margin: auto;
-  margin-top: 20px;
-  max-width: 1000px;
-  flex: 1;
+.progressBar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+  justify-content: space-evenly;
 }
 
-.drawer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 300px;
-  height: 100%;
-  background-color: #fff;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-  transform: translateX(-100%);
-  transition: transform 0.3s ease-in-out;
-  z-index: 1000;
-  overflow-y: auto;
+.history {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+  justify-content: space-evenly;
+  margin-bottom: 30px;
 }
 
-.drawerOpen {
-  transform: translateX(0);
+.inactiveTracker {
+  width: 100%;
+  height: 15px;
+  background-color: #f3f3f3;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  overflow: hidden;
 }

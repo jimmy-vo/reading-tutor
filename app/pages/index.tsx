@@ -1,12 +1,11 @@
 import ContentComponent from '../components/ResponsiveMain';
-import ProgressBar from '../components/ProgressBar';
+import { ProgressBar, HistoryBar } from '../components/ProgressBar';
 import InactiveTracker from '../components/InactiveTracker';
 import styles from './index.module.css';
 import { useState, useEffect, useRef } from 'react';
 import Spinner from '../components/Spinner';
 import VictoryAnimation from '../components/VictoryAnimation';
 import { ContentSet } from '../models/view';
-import { Drawer } from '../components/Drawer';
 import { ContentClient } from '../services/clientSerivce';
 import { AppService as AppService } from '../services/appService';
 
@@ -162,31 +161,21 @@ export default function Home() {
       )}
       {selectedItem && (
         <div className={styles.container}>
-          <ProgressBar history={history} />
-          <button className={styles.hamburgerButton} onClick={toggleDrawer}>
-            ☰
-          </button>
-          <div
-            ref={drawerRef}
-            className={`${styles.drawer} ${
-              isDrawerOpen ? styles.drawerOpen : ''
-            }`}
-          >
-            <Drawer
-              onSelect={handleSelect}
-              onResetTap={handleReset}
-              history={history}
-              topic={selectedItem.topic}
-            />
-          </div>
+          <ProgressBar history={history} className={styles.progressBar} />
           <ContentComponent
-            className={styles.mainContainer}
+            className={styles.mainContent}
             item={selectedItem!}
             isNextDisabled={selectedItem.image === null || !hasEvaluation}
             onSubmit={handleSubmit}
             onNext={handleNext}
           />
-          <InactiveTracker />
+          <HistoryBar
+            className={styles.history}
+            history={history}
+            onSelect={handleSelect}
+            selectedTopic={selectedItem.topic}
+          />
+          <InactiveTracker className={styles.inactiveTracker} />
         </div>
       )}
     </div>
