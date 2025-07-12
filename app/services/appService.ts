@@ -18,11 +18,11 @@ export namespace AppService {
                 InactiveTrackerService.start();
                 const yesterday1am = new Date();
                 yesterday1am.setDate(yesterday1am.getDate() - 1);
-                yesterday1am.setHours(1, 0, 0, 0);
+                yesterday1am.setHours(12, 0, 0, 0);
 
                 history.forEach((item, index) => {
                     if (!item.created) {
-                        item.created = new Date(yesterday1am.getTime() + index * 60000); // Add a minute for each subsequent item
+                        item.created = new Date(yesterday1am.getTime() - index * 60000); // Add a minute for each subsequent item
                     }
                 });
 
