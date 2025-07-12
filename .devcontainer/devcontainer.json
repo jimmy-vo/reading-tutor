@@ -21,5 +21,5 @@
     }
   },
   "forwardPorts": [3000, 5001, 7860],
-  "postCreateCommand": "npm install"
+  "postCreateCommand": "cd app && npm install"
 }

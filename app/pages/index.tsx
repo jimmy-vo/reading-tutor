@@ -96,9 +96,10 @@ export default function Home() {
     const evaluationResult = await ContentClient.getEvaluation(newContentSet);
 
     const newItem: ContentSet = {
-      topic: selectedItem.topic,
+      topic: newContentSet.topic,
+      created: newContentSet.created,
       grade: newContentSet.grade,
-      text: selectedItem.text,
+      text: newContentSet.text,
       image: undefined,
       challenges: evaluationResult,
     };
@@ -110,7 +111,8 @@ export default function Home() {
     setShowCongrats(50);
     // set image to null to display loading
     let workingItem: ContentSet = {
-      grade: newContentSet.grade,
+      grade: newItem.grade,
+      created: newItem.created,
       text: newItem.text,
       topic: newItem.topic,
       image: null,

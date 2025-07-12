@@ -1,5 +1,6 @@
 
 export interface ContentSet {
+  created?: Date;
   grade: number;
   topic: string;
   text: string;
