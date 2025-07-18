@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './PassageChallenges.module.css';
 import Spinner from './Spinner';
-import { Challenge } from '../models/view';
+import { Challenge } from '../models/view/interface';
 
 interface PassageChallengesProps {
   challenges: Challenge[];
@@ -43,7 +43,7 @@ const PassageChallenges: React.FC<PassageChallengesProps> = ({
             <div className={styles.answerVerification}>
               {isSubmitting ? (
                 <Spinner size={16} />
-              ) : ( 
+              ) : (
                 <div>
                   {localChallenges[index].correct === true && (
                     <div style={{ color: 'green' }}>✔️</div>

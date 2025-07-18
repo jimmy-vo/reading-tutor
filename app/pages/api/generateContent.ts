@@ -1,8 +1,8 @@
 import { llmCompletion } from '../../services/openaiService';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { Content, GenerateContentInput, } from '../../models/dto';
+import { Content, GenerateContentInput, } from '../../models/dtoInterface';
 import { Env } from '../../services/configService';
-import { Grade } from '../../models/backend';
+import { Grade } from '../../models/backend/interface';
 
 const example: Content = {
   passage: "John went to school this morning, then he went home for lunch. After that he went back to school but he felt so bad. His mom kept him at home for the rest of the day",

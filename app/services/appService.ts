@@ -1,10 +1,113 @@
 import { ContentClient } from './clientSerivce';
 import { InactiveTrackerService } from './inactiveTrackerService';
-import { ContentSet } from '../models/view';
+import { ContentSet, GradeGroup, GradeItem, GradeState, ItemState } from '../models/view/interface';
 import { HistoryStorage, GradeStorage, ContentStorage } from './storageService';
 import { Env } from './configService';
 
 export namespace AppService {
+    export const getGrade = (): number => GradeStorage.read();
+
+    export const getProgress = (): GradeGroup[] => {
+        let history = HistoryStorage.read();
+        let gradeId = GradeStorage.read();
+        return Env.grades.map((grade) => {
+            return {
+                id: grade.id,
+                count: grade.count,
+                history: history
+                    .filter((c) => c.grade === grade.id)
+                    .sort(
+                        (a, b) =>
+                            (b.created?.getTime?.() ?? 0) -
+                            (a.created?.getTime?.() ?? 0),
+                    ),
+            };
+        })
+            .filter((x) => x.history.length !== 0 || x.id > gradeId)
+            .map((g) => {
+                const gradeState: GradeState =
+                    g.id < gradeId
+                        ? GradeState.completed
+                        : g.id === gradeId
+                            ? GradeState.active
+                            : GradeState.todo;
+                let isValid: boolean = true;
+                let validCount = g.count;
+                const dots: GradeItem[] = g.history.map((contentSet) => {
+                    if (gradeState === GradeState.completed) {
+                        return {
+                            state: ItemState.validCorrect,
+                            contentSet: contentSet,
+                        };
+                    }
+                    if (gradeState === GradeState.todo) {
+                        return {
+                            state: ItemState.todo,
+                            contentSet: contentSet,
+                        };
+                    }
+
+                    if (contentSet.challenges.some((c) => c.correct === false)) {
+                        isValid = isValid && false;
+                        validCount = g.count;
+                        return {
+                            state: ItemState.incorrect,
+                            contentSet: contentSet,
+                        };
+                    }
+
+                    if (contentSet.challenges.every((c) => c.correct === true)) {
+                        isValid = isValid && true;
+                        validCount -= isValid ? 1 : 0;
+                        return {
+                            state: isValid ? ItemState.validCorrect : ItemState.invalidCorrect,
+                            contentSet: contentSet,
+                        };
+                    }
+                    if (contentSet.challenges.every((c) => c.correct === undefined)) {
+                        isValid = isValid && true;
+                        validCount -= isValid ? 1 : 0;
+                        return {
+                            state: ItemState.active,
+                            contentSet: contentSet,
+                        };
+                    }
+
+                    return {
+                        state: contentSet.challenges.some((c) => c.correct === false)
+                            ? ItemState.incorrect
+                            : contentSet.challenges.every((c) => c.correct === true)
+                                ? ItemState.validCorrect
+                                : ItemState.invalidCorrect,
+                        contentSet: contentSet,
+                    };
+                });
+                const allDots: GradeItem[] =
+                    gradeState === GradeState.completed
+                        ? [
+                            ...Array(g.count - dots.length).fill({
+                                state: ItemState.validCorrect,
+                                isSelected: false,
+                            }),
+                            ...dots.reverse(),
+                        ]
+                        : [
+                            ...dots.reverse(),
+                            ...Array(validCount).fill({
+                                state: ItemState.todo,
+                                isSelected: false,
+                            }),
+                        ];
+
+                return {
+                    gradeId: g.id,
+                    state: gradeState,
+                    dots: allDots,
+                };
+            });
+
+    }
+
     export const getAll = async (generate: boolean): Promise<ContentSet[]> => {
         let history = HistoryStorage.read();
         let gradeId = GradeStorage.read();

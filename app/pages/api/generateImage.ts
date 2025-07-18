@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { imageComplettion } from '../../services/openaiService';
 import { v4 as uuidv4 } from 'uuid';
-import { GenerateImageOutput } from '../../models/dto';
+import { GenerateImageOutput } from '../../models/dtoInterface';
 import fs from 'fs';
 import { Env } from '../../services/configService';
 import path from 'path';
@@ -31,7 +31,7 @@ export default async function handler(
 async function generateImage(prompt: string): Promise<GenerateImageOutput> {
 
     if (Env.Disfusion.mockedApi !== undefined) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 100));
         if (!Env.Disfusion.mockedApi) throw new Error();
 
         return { id: "mocked-id" };

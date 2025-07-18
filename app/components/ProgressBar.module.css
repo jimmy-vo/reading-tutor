@@ -1,54 +1,78 @@
-.dot {
+/* Only styles used by ProgressDots are kept */
+
+.gradeGroup {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.smallDotsRow {
+  display: flex;
+  align-items: center;
+}
+
+.smallDot {
+  border-radius: 50%;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1),
+    height 1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s,
+    margin 1s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease-in-out;
+  width: 0;
+  height: 0;
+  background-color: #bdbdbd;
+}
+
+.smallDot:hover {
+  transform: scale(1.4);
+}
+
+.noHover:hover {
+  transform: none;
+}
+
+.orange {
+  background-color: orange;
+}
+
+.green {
+  background-color: green;
+}
+
+.grey {
+  background-color: grey;
+}
+
+.red {
+  background-color: red;
+}
+
+.smallDot.expanded {
   width: 10px;
   height: 10px;
-  background-color: #4e4f51;
-  border-radius: 50%;
   margin: 2px;
+}
+
+.smallDot.collapsed {
+  width: 0;
+  height: 0;
+}
+
+.selected {
+  border: 1px solid #4e4f51;
+}
+
+.bigDot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   color: white;
   font-size: 16px;
+  margin: 4px;
+  cursor: pointer;
 }
 
-.dot span {
-  opacity: 0;
-  pointer-events: all;
-}
-
-.dot span::after {
-  content: attr(title);
-}
-/* 
-.dot span:hover::after {
-  opacity: 0;
-  display: block;
-} */
-
-.bigDot {
-  width: 20px;
-  height: 20px;
-}
-
-.historyItem {
-  height: 20px;
-  width: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.historyItem .dot {
-  margin: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.current {
-  background-color: #00ec91 !important;
-}
-
-.completed {
-  background-color: #a33c00 !important;
+.grow {
+  transition: transform 0.3s ease-in-out;
 }

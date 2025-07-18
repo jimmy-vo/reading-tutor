@@ -1,19 +1,13 @@
 import ContentComponent from '../components/ResponsiveMain';
-import { ProgressBar, HistoryBar } from '../components/ProgressBar';
+import { ProgressDots } from '../components/ProgressBar';
 import InactiveTracker from '../components/InactiveTracker';
 import styles from './index.module.css';
 import { useState, useEffect, useRef } from 'react';
 import Spinner from '../components/Spinner';
 import VictoryAnimation from '../components/VictoryAnimation';
-import { ContentSet } from '../models/view';
+import { ContentSet } from '../models/view/interface';
 import { ContentClient } from '../services/clientSerivce';
 import { AppService as AppService } from '../services/appService';
-
-export interface Answer {
-  id: string;
-  expectedAnswer: string;
-  obtainedAnswer: string;
-}
 
 export default function Home() {
   const [history, setHistory] = useState<ContentSet[]>([]);
@@ -57,18 +51,10 @@ export default function Home() {
     };
   }, [isDrawerOpen]);
 
-  const handleReset = async () => {
-    setLoading(true);
-    setDrawerOpen(false);
-    AppService.reset();
-    const activeContent = await handleGetAll(true);
-    setSelectedItem(activeContent);
-  };
-
-  const handleNext = async () => {
-    console.info(`Generate next content`);
-    const activeContent = await handleGetAll(true);
-    setSelectedItem(activeContent);
+  const handleSelect = (item: ContentSet) => {
+    const idx = history.findIndex((x) => x.topic == item.topic);
+    console.log(idx);
+    setSelectedItem(history[idx]);
   };
 
   const handleGetAll = async (
@@ -119,7 +105,7 @@ export default function Home() {
     };
     setSelectedItem(AppService.update(workingItem));
     console.info('Generating image...');
-    return ContentClient.getImage(workingItem)
+    return await ContentClient.getImage(workingItem)
       .then((imageId) => {
         console.info('Get the image...');
         workingItem.image = imageId;
@@ -130,24 +116,15 @@ export default function Home() {
         console.info('Reset image id');
         workingItem.image = undefined;
         setSelectedItem(AppService.update(workingItem));
+      })
+      .finally(async () => {
+        await handleGetAll(true, false);
       });
-  };
-
-  const toggleDrawer = () => setDrawerOpen(!isDrawerOpen);
-
-  const handleSelect = (topic: string) => {
-    if (loading) return;
-    setSelectedItem(history.find((x) => x.topic === topic));
-    setDrawerOpen(false);
   };
 
   const showSpiner = loading || !selectedItem;
   const showCongrats = congratAnimation !== 0;
   const showOveray = showSpiner || showCongrats;
-
-  const hasEvaluation =
-    history[0]?.challenges?.every((x) => x.correct !== undefined) ?? false;
-
   return (
     <div>
       {showOveray && (
@@ -161,19 +138,16 @@ export default function Home() {
       )}
       {selectedItem && (
         <div className={styles.container}>
-          <ProgressBar history={history} className={styles.progressBar} />
+          <ProgressDots
+            selectedItem={selectedItem}
+            gradeGroups={AppService.getProgress()}
+            className={styles.progressBar}
+            onContentSetTapped={handleSelect}
+          />
           <ContentComponent
             className={styles.mainContent}
             item={selectedItem!}
-            isNextDisabled={selectedItem.image === null || !hasEvaluation}
             onSubmit={handleSubmit}
-            onNext={handleNext}
-          />
-          <HistoryBar
-            className={styles.history}
-            history={history}
-            onSelect={handleSelect}
-            selectedTopic={selectedItem.topic}
           />
           <InactiveTracker className={styles.inactiveTracker} />
         </div>

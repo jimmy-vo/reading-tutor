@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { llmCompletion } from '../../services/openaiService';
-import { GenerateTopicInput } from '../../models/dto';
+import { GenerateTopicInput } from '../../models/dtoInterface';
 import { Env } from '../../services/configService';
 
 

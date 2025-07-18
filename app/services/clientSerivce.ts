@@ -1,5 +1,5 @@
-import { Content, EvaluationOutput, GenerateContentInput, GenerateImageOutput, GenerateTopicInput, ImagePromptInput } from "../models/dto";
-import { Challenge, ContentSet } from "../models/view";
+import { Content, EvaluationOutput, GenerateContentInput, GenerateImageOutput, GenerateTopicInput, ImagePromptInput } from "../models/dtoInterface";
+import { Challenge, ContentSet } from "../models/view/interface";
 import axios from "axios"
 
 export namespace ContentClient {

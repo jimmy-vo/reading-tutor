@@ -1,4 +1,4 @@
-import { ContentSet } from "../models/view";
+import { ContentSet } from "../models/view/interface";
 
 export namespace InactiveTrackerStorage {
     const KEY = 'inactiveTime';

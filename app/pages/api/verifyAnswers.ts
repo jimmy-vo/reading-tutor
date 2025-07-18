@@ -1,6 +1,6 @@
 import { llmCompletion } from '../../services/openaiService';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { EvaluationInput, EvaluationOutput } from '../../models/dto';
+import { EvaluationInput, EvaluationOutput } from '../../models/dtoInterface';
 import { Env } from '../../services/configService';
 
 const examples: EvaluationOutput[] = [
@@ -29,7 +29,7 @@ export default async function handler(
     const input: EvaluationInput = req.body as EvaluationInput;
 
     if (Env.Llm.mockedApi !== undefined) {
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 100));
       return res
         .status(200)
         .send(input.qna.map(x => ({

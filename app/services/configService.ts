@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { Grade } from '../models/backend';
+import { Grade } from '../models/backend/interface';
 
 dotenv.config();
 

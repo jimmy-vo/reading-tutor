@@ -3,21 +3,17 @@ import PassageContainer from './PassageContainer';
 import PassageChallenges from './PassageChallenges';
 import styles from './ResponsiveMain.module.css';
 import { ContentController } from './ChallengeButtons';
-import { Challenge, ContentSet } from '../models/view';
+import { Challenge, ContentSet } from '../models/view/interface';
 
 interface ResponsiveMainProps {
   className?: string;
   item: ContentSet;
-  isNextDisabled: boolean;
   onSubmit: (contentSet: ContentSet) => void;
-  onNext: () => void;
 }
 
 const ResponsiveMain: React.FC<ResponsiveMainProps> = ({
   item: contentSet,
-  isNextDisabled,
   onSubmit,
-  onNext,
   className,
 }) => {
   const textContainerRef = useRef<HTMLDivElement>(null);
@@ -89,7 +85,7 @@ const ResponsiveMain: React.FC<ResponsiveMainProps> = ({
         dividerRef.current.removeEventListener('mousedown', handleMouseDown);
       }
     };
-  }, [contentSet, isNextDisabled]);
+  }, [contentSet]);
 
   const handleAnswerChanged = (value: Challenge[]) => {
     contentSet.challenges = value;
@@ -125,9 +121,7 @@ const ResponsiveMain: React.FC<ResponsiveMainProps> = ({
         <ContentController
           className={styles.buttonContainer}
           onSubmit={handleSubmit}
-          onNext={onNext}
           isSubmitDisabled={isSubmitDisabled}
-          isNextDisabled={isNextDisabled}
         />
       </div>
     </div>
