@@ -4,18 +4,15 @@ import PassageChallenges from './PassageChallenges';
 import styles from './ResponsiveMain.module.css';
 import { ContentController } from './ChallengeButtons';
 import { Challenge, ContentSet } from '../models/view/interface';
+import { useProgress } from '../context/ProgressProvider';
+import Spinner from './Spinner';
 
-interface ResponsiveMainProps {
+export const ResponsiveMain: React.FC<{
   className?: string;
-  item: ContentSet;
-  onSubmit: (contentSet: ContentSet) => void;
-}
+  onItemSelect: (item: ContentSet) => void;
+}> = ({ className, onItemSelect }) => {
+  const { selectedItem, submit } = useProgress();
 
-const ResponsiveMain: React.FC<ResponsiveMainProps> = ({
-  item: contentSet,
-  onSubmit,
-  className,
-}) => {
   const textContainerRef = useRef<HTMLDivElement>(null);
   const challengesContainerRef = useRef<HTMLDivElement>(null);
   const dividerRef = useRef<HTMLDivElement>(null);
@@ -85,41 +82,49 @@ const ResponsiveMain: React.FC<ResponsiveMainProps> = ({
         dividerRef.current.removeEventListener('mousedown', handleMouseDown);
       }
     };
-  }, [contentSet]);
+  }, [selectedItem]);
 
   const handleAnswerChanged = (value: Challenge[]) => {
-    contentSet.challenges = value;
+    selectedItem.challenges = value;
     setSubmitDisabled(
-      contentSet.challenges.filter((x) => x.answer.trim().length > 0).length <
-        contentSet.challenges.length,
+      selectedItem.challenges.filter((x) => x.answer.trim().length > 0).length <
+        selectedItem.challenges.length,
     );
   };
 
   const handleSubmit = async () => {
     setSubmitDisabled(true);
     setSubmitting(true);
-    await onSubmit(contentSet);
+    await submit(selectedItem);
     setSubmitting(false);
   };
+
+  if (selectedItem === undefined)
+    return (
+      <div>
+        <Spinner />
+      </div>
+    );
 
   return (
     <div className={`${styles.responsiveContainer} ${className}`}>
       <div ref={textContainerRef} className={styles.textContainer}>
         <PassageContainer
-          topic={contentSet.topic}
-          imageId={contentSet.image}
-          text={contentSet.text}
+          topic={selectedItem.topic}
+          imageId={selectedItem.image}
+          text={selectedItem.text}
         />
       </div>
       <div className={styles.divider} ref={dividerRef} />
       <div className={styles.challengesContainer} ref={challengesContainerRef}>
         <PassageChallenges
           onChanged={handleAnswerChanged}
-          challenges={contentSet.challenges}
+          challenges={selectedItem.challenges}
           isSubmitting={isSubmitting}
         />
         <ContentController
           className={styles.buttonContainer}
+          onItemSelect={onItemSelect}
           onSubmit={handleSubmit}
           isSubmitDisabled={isSubmitDisabled}
         />
@@ -127,5 +132,3 @@ const ResponsiveMain: React.FC<ResponsiveMainProps> = ({
     </div>
   );
 };
-
-export default ResponsiveMain;

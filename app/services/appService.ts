@@ -1,86 +1,193 @@
 import { ContentClient } from './clientSerivce';
-import { InactiveTrackerService } from './inactiveTrackerService';
 import { ContentSet, GradeGroup, GradeItem, GradeState, ItemState } from '../models/view/interface';
-import { HistoryStorage, GradeStorage, ContentStorage } from './storageService';
+import { HistoryStorage, GradeStorage } from './storageService';
 import { Env } from './configService';
 
-export namespace AppService {
-    export const getGrade = (): number => GradeStorage.read();
+export class Progress {
 
-    export const getProgress = (): GradeGroup[] => {
-        let history = HistoryStorage.read();
-        let gradeId = GradeStorage.read();
-        return Env.grades.map((grade) => {
+    private history: ContentSet[] = [];
+    private gradeId: number = -1;
+    private gradeGroup: GradeGroup[];
+
+    public constructor() {
+    }
+
+    public intitialize = async () => {
+        await new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (typeof localStorage !== 'undefined') {
+                    clearInterval(interval);
+                    resolve(true);
+                }
+            }, 100);
+        }).then(() => {
+            this.history = HistoryStorage.read();
+            this.gradeId = GradeStorage.read();
+            this.gradeGroup = Progress.getProgress(this.history, this.gradeId);
+        });
+    }
+    public getOtherItems = (item: ContentSet): { prev: ContentSet | null, next: ContentSet | null } => {
+        const availbleItems = this.gradeGroup.flatMap(x => x.items.filter(x => x.state !== ItemState.toDo && x.value)).map(x => x.value);
+        const index = availbleItems.findIndex(x => x.topic === item.topic);
+        return {
+            prev: index <= 0 ? null : availbleItems[index - 1],
+            next: index >= availbleItems.length - 1 ? null : availbleItems[index + 1]
+        }
+    }
+    public getCurrentGrade = (): number => this.gradeId;
+
+    public getGrades = (): GradeGroup[] => this.gradeGroup;
+
+    private findCurrentGrade = (): GradeGroup | null => this.gradeGroup.find(x => x.id === this.gradeId) || null;
+
+    public getCurrentActiveItem = (): ContentSet | null =>
+        this.findCurrentGrade()?.items?.findLast(x => x.state === ItemState.active)?.value;
+
+    public getLastItem = (): ContentSet | null =>
+        this.findCurrentGrade()?.items?.findLast(x => x.state !== ItemState.toDo)?.value;
+
+    public generateNewItem = async (): Promise<boolean> => {
+        const currentTodo = this.getCurrentToDoCount();
+        if (currentTodo === 0) {
+            this.gradeId += 1;
+            GradeStorage.write(this.gradeId);
+            this.gradeGroup.find(x => x.id === this.gradeId).state = GradeState.active;
+        }
+        const preGrade = this.gradeGroup.find(x => x.id === this.gradeId - 1);
+        if (preGrade) {
+            preGrade.state = GradeState.completed;
+        }
+        const topics = this.history.map(x => x.topic);
+        const topic = await ContentClient.getTopic(topics, this.gradeId);
+        const content = await ContentClient.getContent(topic, this.gradeId);
+        const item: ContentSet = {
+            topic: topic,
+            created: new Date(),
+            gradeId: this.gradeId,
+            text: content.passage,
+            image: undefined,
+            challenges: content.qna.map(x => ({
+                id: x.id,
+                explaination: "",
+                question: x.question,
+                answer: "",
+                expected: x.answer,
+                correct: undefined,
+            }))
+        };
+        this.history.push(item);
+        HistoryStorage.write(this.history);
+        console.log(item.gradeId)
+        const grade: GradeGroup = this.gradeGroup.find(x => x.id === item.gradeId);
+        const firstIdx: number = grade.items.findIndex(x => x.state === ItemState.toDo);
+        grade.items[firstIdx] = {
+            state: ItemState.active,
+            value: item,
+        }
+        return currentTodo === 0;
+    }
+
+    public updateItem = (item: ContentSet) => {
+        const grade: GradeGroup = this.gradeGroup.find(x => x.id === item.gradeId);
+        const historyIdx: number = this.history.findIndex(x => x?.topic === item.topic);
+        this.history[historyIdx] = item;
+        HistoryStorage.write(this.history);
+        const firstIdx: number = grade.items.findIndex(x => x?.value?.topic === item.topic);
+        grade.items[firstIdx] = Progress.GetGradeItem(item, grade.state);
+    }
+
+
+    public getCurrentToDoCount = () => this.findCurrentGrade()
+        ?.items
+        ?.filter(x => x.state === ItemState.toDo)
+        ?.length
+        ?? -1
+
+    private static GetGradeItem = (contentSet: ContentSet, gradeState: GradeState): GradeItem => {
+        if (gradeState === GradeState.completed) {
             return {
-                id: grade.id,
-                count: grade.count,
-                history: history
-                    .filter((c) => c.grade === grade.id)
-                    .sort(
-                        (a, b) =>
-                            (b.created?.getTime?.() ?? 0) -
-                            (a.created?.getTime?.() ?? 0),
-                    ),
+                state: ItemState.validCorrect,
+                value: contentSet,
             };
-        })
-            .filter((x) => x.history.length !== 0 || x.id > gradeId)
+        }
+        if (gradeState === GradeState.todo) {
+            return {
+                state: ItemState.toDo,
+                value: contentSet,
+            };
+        }
+
+        if (contentSet.challenges.some((c) => c.correct === false)) {
+            return {
+                state: ItemState.incorrect,
+                value: contentSet,
+            };
+        }
+
+        if (contentSet.challenges.every((c) => c.correct === true)) {
+            return {
+                state: ItemState.validCorrect,
+                value: contentSet,
+            };
+        }
+        if (contentSet.challenges.every((c) => c.correct === undefined)) {
+            return {
+                state: ItemState.active,
+                value: contentSet,
+            };
+        }
+
+        return {
+            state: contentSet.challenges.some((c) => c.correct === false)
+                ? ItemState.incorrect
+                : contentSet.challenges.every((c) => c.correct === true)
+                    ? ItemState.validCorrect
+                    : ItemState.invalidCorrect,
+            value: contentSet,
+        };
+    };
+
+    private static getProgress = (history: ContentSet[], currentGradeId: number): GradeGroup[] => {
+        return Env.grades.map((grade) => ({
+            id: grade.id,
+            count: grade.count,
+            history: history
+                .filter((c) => c.gradeId === grade.id)
+                .sort(
+                    (a, b) => (b.created?.getTime() ?? 0) -
+                        (a.created?.getTime() ?? 0)
+                ),
+        }))
+            .filter((x) => x.history.length !== 0 || x.id >= currentGradeId)
             .map((g) => {
                 const gradeState: GradeState =
-                    g.id < gradeId
+                    g.id < currentGradeId
                         ? GradeState.completed
-                        : g.id === gradeId
+                        : g.id === currentGradeId
                             ? GradeState.active
                             : GradeState.todo;
                 let isValid: boolean = true;
                 let validCount = g.count;
                 const dots: GradeItem[] = g.history.map((contentSet) => {
-                    if (gradeState === GradeState.completed) {
-                        return {
-                            state: ItemState.validCorrect,
-                            contentSet: contentSet,
-                        };
-                    }
-                    if (gradeState === GradeState.todo) {
-                        return {
-                            state: ItemState.todo,
-                            contentSet: contentSet,
-                        };
-                    }
 
-                    if (contentSet.challenges.some((c) => c.correct === false)) {
-                        isValid = isValid && false;
+                    const value = Progress.GetGradeItem(contentSet, gradeState);
+
+                    if (value.state === ItemState.incorrect) {
+                        isValid = false;
                         validCount = g.count;
-                        return {
-                            state: ItemState.incorrect,
-                            contentSet: contentSet,
-                        };
+                        return value;
                     }
 
-                    if (contentSet.challenges.every((c) => c.correct === true)) {
+                    if (value.state === ItemState.validCorrect || value.state === ItemState.active) {
                         isValid = isValid && true;
                         validCount -= isValid ? 1 : 0;
-                        return {
-                            state: isValid ? ItemState.validCorrect : ItemState.invalidCorrect,
-                            contentSet: contentSet,
-                        };
-                    }
-                    if (contentSet.challenges.every((c) => c.correct === undefined)) {
-                        isValid = isValid && true;
-                        validCount -= isValid ? 1 : 0;
-                        return {
-                            state: ItemState.active,
-                            contentSet: contentSet,
-                        };
-                    }
 
-                    return {
-                        state: contentSet.challenges.some((c) => c.correct === false)
-                            ? ItemState.incorrect
-                            : contentSet.challenges.every((c) => c.correct === true)
-                                ? ItemState.validCorrect
-                                : ItemState.invalidCorrect,
-                        contentSet: contentSet,
-                    };
+                        if (value.state === ItemState.active) return value;
+
+                        value.state = isValid ? ItemState.validCorrect : ItemState.invalidCorrect
+                        return value;
+                    }
+                    return value;
                 });
                 const allDots: GradeItem[] =
                     gradeState === GradeState.completed
@@ -94,124 +201,26 @@ export namespace AppService {
                         : [
                             ...dots.reverse(),
                             ...Array(validCount).fill({
-                                state: ItemState.todo,
+                                state: ItemState.toDo,
                                 isSelected: false,
                             }),
                         ];
 
                 return {
-                    gradeId: g.id,
                     state: gradeState,
-                    dots: allDots,
-                };
+                    items: allDots,
+                    id: g.id,
+                } as GradeGroup;
             });
 
     }
+}
 
-    export const getAll = async (generate: boolean): Promise<ContentSet[]> => {
-        let history = HistoryStorage.read();
-        let gradeId = GradeStorage.read();
-        let current: ContentSet | undefined = history.find(x => !x.challenges.every(c => c.correct !== undefined));
-        if (current) {
-            if (current.grade !== gradeId && generate) {
-                history = history.filter(x => x !== current);
-                HistoryStorage.write(history);
-            } else {
-                console.debug("AppService.getAll: found", history)
-                InactiveTrackerService.start();
-                return history;
-            }
-        }
-
-        const grade = Env.grades.find(x => x.id === gradeId);
-        if (countAllCorrectInArrow(history, gradeId) >= grade.count) {
-            console.debug("AppService.getAll: all correct in a row!")
-            gradeId += 1;
-            GradeStorage.write(gradeId)
-        }
-        if (!generate) {
-            InactiveTrackerService.start();
-            return history;
-        }
-        console.debug("AppService.getAll: Add new item")
-        current = await generateNewContent(history, gradeId);
-
-        InactiveTrackerService.start();
-        return Add(current)
-    }
-
-    const Add = (contentSet: ContentSet): ContentSet[] => {
-        const history = HistoryStorage.read();
-        history.unshift(contentSet);
-        if (history.length > 10) {
-            history.pop();
-        }
-        HistoryStorage.write(history);
-        ContentStorage.reset();
-        return history;
-    };
-
-    export const update = (contentSet: ContentSet): ContentSet => {
-        const history = HistoryStorage.read();
-        const index = history.findIndex((x) => x.topic == contentSet.topic);
-        history[index] = JSON.parse(JSON.stringify(contentSet)) as ContentSet;
-        HistoryStorage.write(history);
-        return history[index];
-    }
-
-    export const reset = (): void => {
-        HistoryStorage.write([]);
-    };
-
-
-    export const getActiveContentStorage = async (history: ContentSet[], grade: number): Promise<ContentSet> => {
-        const cachedContentSet: ContentSet | null = ContentStorage.read();
-
-        if (validateContent(cachedContentSet, grade)) return cachedContentSet!;
-        return await generateNewContent(history, grade);
-    }
-
-    export const countAllCorrectInArrow = (history: ContentSet[], grade: number) => {
-        let currentCount = 0;
-
-        const oldItems = history
-            .filter(x => x.challenges.every((x) => x.correct !== undefined));
-
-        for (const entry of oldItems) {
-            const allCorrect = entry.challenges.every(c => c.correct === true);
-            if (entry.grade < grade || !allCorrect) return currentCount;
-            currentCount++;
-        }
-        return currentCount;
-    };
-
-    const generateNewContent = async (history: ContentSet[], grade: number): Promise<ContentSet> => {
-        const topics = history.map(x => x.topic);
-        const topic = await ContentClient.getTopic(topics, grade);
-        const content = await ContentClient.getContent(topic, grade);
-        const contentSet: ContentSet = {
-            topic: topic,
-            created: new Date(),
-            grade: grade,
-            text: content.passage,
-            image: undefined,
-            challenges: content.qna.map(x => ({
-                id: x.id,
-                explaination: "",
-                question: x.question,
-                answer: "",
-                expected: x.answer,
-                correct: undefined,
-            }))
-        };
-
-        ContentStorage.write(contentSet);
-        return contentSet;
-    }
+export namespace AppService {
 
     const validateContent = (cachedContentSet: ContentSet | null, grade: number) =>
         cachedContentSet &&
-        cachedContentSet.grade === grade &&
+        cachedContentSet.gradeId === grade &&
         typeof cachedContentSet.topic === 'string' &&
         typeof cachedContentSet.text === 'string' &&
         Array.isArray(cachedContentSet.challenges) &&

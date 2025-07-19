@@ -1,7 +1,7 @@
 
 export interface ContentSet {
   created?: Date;
-  grade: number;
+  gradeId: number;
   topic: string;
   text: string;
   image: string | undefined | null;
@@ -28,7 +28,7 @@ export enum ItemState {
   invalidCorrect,
   validCorrect,
   active,
-  todo,
+  toDo,
 }
 
 export enum GradeState {
@@ -39,11 +39,11 @@ export enum GradeState {
 
 export interface GradeItem {
   state: ItemState;
-  contentSet: ContentSet | undefined | null;
+  value: ContentSet | undefined | null;
 }
 
 export interface GradeGroup {
-  dots: GradeItem[];
-  gradeId: number;
+  items: GradeItem[];
   state: GradeState;
+  id: number;
 }

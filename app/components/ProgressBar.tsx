@@ -1,40 +1,27 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from './ProgressBar.module.css';
-import {
-  ContentSet,
-  GradeGroup,
-  GradeState,
-  ItemState,
-} from '../models/view/interface';
+import { GradeState, ItemState } from '../models/view/interface';
+import { useProgress } from '../context/ProgressProvider';
 
 interface ProgressDotsProps {
-  gradeGroups: GradeGroup[];
-  selectedItem: ContentSet;
-  onContentSetTapped: (contentSet: ContentSet) => void;
   className?: string;
+  selectedGrade?: number;
+  onGradeSelected?: (gradeId: number) => void;
 }
 
 export const ProgressDots: React.FC<ProgressDotsProps> = ({
-  gradeGroups,
-  selectedItem,
-  onContentSetTapped,
   className,
+  selectedGrade,
+  onGradeSelected,
 }) => {
-  const [expandedGradeId, setExpandedGradeId] = useState<number | null>(null);
-
-  const handleBigDotClick = (gradeId: number) => {
-    setExpandedGradeId((prev) => (prev === gradeId ? null : gradeId));
-  };
+  const { grades, selectedItem, setSelectedItem } = useProgress();
 
   return (
     <div className={className} aria-hidden="true">
-      {gradeGroups.map((gradeGroup) => {
-        const expanded = expandedGradeId === gradeGroup.gradeId;
+      {grades.map((gradeGroup) => {
+        const expanded = selectedGrade === gradeGroup.id;
         return (
-          <div
-            key={`grade-${gradeGroup.gradeId}`}
-            className={styles.gradeGroup}
-          >
+          <div key={`grade-${gradeGroup.id}`} className={styles.gradeGroup}>
             {/* Big dot for grade */}
             <div
               className={[
@@ -50,25 +37,23 @@ export const ProgressDots: React.FC<ProgressDotsProps> = ({
                   }
                 })(),
               ].join(' ')}
-              onClick={() => handleBigDotClick(gradeGroup.gradeId)}
+              onClick={() => onGradeSelected(gradeGroup.id)}
               style={{ cursor: 'pointer' }}
             >
-              {gradeGroup.gradeId}
+              {gradeGroup.id}
             </div>
             {/* Small dots for ContentSets */}
             <div className={styles.smallDotsRow}>
-              {gradeGroup.dots.map((dot, idx) => (
+              {gradeGroup.items.map((dot, idx) => (
                 <div
-                  key={`grade-${gradeGroup.gradeId}-dot-${idx}`}
+                  key={`grade-${gradeGroup.id}-dot-${idx}`}
                   onClick={() =>
-                    dot.contentSet.topic !== selectedItem.topic &&
-                    dot.contentSet
-                      ? onContentSetTapped(dot.contentSet)
+                    dot.value.topic !== selectedItem?.topic && dot.value
+                      ? setSelectedItem(dot.value)
                       : undefined
                   }
                   style={{
-                    cursor:
-                      dot.contentSet !== undefined ? 'pointer' : 'default',
+                    cursor: dot.value !== undefined ? 'pointer' : 'default',
                   }}
                   className={[
                     styles.smallDot,
@@ -81,15 +66,15 @@ export const ProgressDots: React.FC<ProgressDotsProps> = ({
                           return styles.orange;
                         case ItemState.active:
                           return styles.green;
-                        case ItemState.todo:
+                        case ItemState.toDo:
                           return styles.grey;
                         default:
                           return '';
                       }
                     })(),
                     expanded ? styles.expanded : styles.collapsed,
-                    dot.contentSet === undefined ? styles.noHover : '',
-                    dot.contentSet?.topic == selectedItem?.topic && expanded
+                    dot.value === undefined ? styles.noHover : '',
+                    dot.value?.topic == selectedItem?.topic && expanded
                       ? styles.selected
                       : '',
                   ]

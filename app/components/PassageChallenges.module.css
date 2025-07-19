@@ -10,6 +10,8 @@
 }
 
 .question {
+  margin-left: 20px;
+  margin-right: 20px;
   color: #ff4500;
   font-size: 1.1em;
   margin-bottom: 10px;
@@ -23,6 +25,7 @@
   font-size: 1em;
   width: calc(100% - 40px);
   margin-right: 10px;
+  margin-left: 20px;
   user-select: none;
 }
 

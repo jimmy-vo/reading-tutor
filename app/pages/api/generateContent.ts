@@ -26,7 +26,7 @@ export default async function handler(
   if (req.method === 'POST') {
     const { topic, level = 1 } = req.body as GenerateContentInput;
     if (Env.Llm.mockedApi !== undefined) {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 50));
       res.status(200).json(example);
     }
     const grade = Env.grades.find(grade => grade.id === level);

@@ -31,7 +31,7 @@ export default async function handler(
 async function generateImage(prompt: string): Promise<GenerateImageOutput> {
 
     if (Env.Disfusion.mockedApi !== undefined) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         if (!Env.Disfusion.mockedApi) throw new Error();
 
         return { id: "mocked-id" };
