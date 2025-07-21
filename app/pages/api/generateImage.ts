@@ -32,10 +32,8 @@ async function generateImage(prompt: string): Promise<GenerateImageOutput> {
 
     if (Env.Disfusion.mockedApi !== undefined) {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        if (!Env.Disfusion.mockedApi) throw new Error();
-
+        if (false) throw new Error();
         return { id: "mocked-id" };
-
     }
     const base64Image = await imageComplettion(prompt);
     const buffer = Buffer.from(base64Image, 'base64');

@@ -18,6 +18,7 @@ COPY components/ ./components
 COPY public/ ./public
 COPY pages/ ./pages
 COPY services/ ./services
+COPY context/ ./context
 
 RUN npm run build
 

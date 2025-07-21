@@ -1,7 +1,8 @@
-.challengesContainer {
-  flex: 1;
-  overflow-y: auto;
-  user-select: none;
+.bookContainer {
+  width: 100%;
+  max-width: 56rem; /* previously max-w-4xl */
+  height: 60vh;
+  max-height: 600px;
 }
 
 .buttonContainer {
@@ -10,11 +11,11 @@
   margin-left: 20px;
   margin-right: 20px;
 }
-
-.textContainer {
-  /* flex: 1; */
-  overflow-y: auto;
+.challengesContainer .textContainer {
+  overflow-y: hidden;
   user-select: none;
+  width: auto;
+  max-height: 100%;
 }
 
 .divider {
@@ -31,16 +32,4 @@
   user-select: none;
   flex-grow: 1;
   flex: 1;
-}
-
-@media (min-width: 768px) {
-  .responsiveContainer {
-    flex-direction: row;
-  }
-
-  .textContainer,
-  .challengesContainer {
-    width: auto;
-    max-height: 100vh;
-  }
 }

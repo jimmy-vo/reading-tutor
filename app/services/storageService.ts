@@ -1,5 +1,16 @@
 import { ContentSet } from "../models/view/interface";
 
+export namespace Util {
+    export const getGuid = (): string => {
+        // Returns RFC4122 version 4 compliant UUID
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+}
+
 export namespace InactiveTrackerStorage {
     const KEY = 'inactiveTime';
     const defaultValue: number = 60 * 4
@@ -12,22 +23,6 @@ export namespace InactiveTrackerStorage {
         }
         return parseInt(inactiveTime, 10);
     };
-}
-
-export namespace ContentStorage {
-    const ACTIVE_CONTENT_KEY = "content";
-    export const read = (): ContentSet | null => {
-        console.debug("ContentStorage.read")
-        const contentSetString = localStorage.getItem(ACTIVE_CONTENT_KEY);
-        const cachedContentSet: ContentSet | null = contentSetString ? JSON.parse(contentSetString) : null;
-        return cachedContentSet;
-    };
-
-    export const write = (contentSet: ContentSet) => {
-        console.debug("ContentStorage.write", contentSet)
-        localStorage.setItem(ACTIVE_CONTENT_KEY, JSON.stringify(contentSet));
-    }
-    export const reset = () => localStorage.removeItem(ACTIVE_CONTENT_KEY);
 }
 
 export namespace HistoryStorage {
@@ -43,10 +38,12 @@ export namespace HistoryStorage {
         yesterday1am.setHours(12, 0, 0, 0);
 
         history.forEach((item, index) => {
+            if (!item.id) {
+                item.id = Util.getGuid();
+            }
             if (!item.created) {
                 item.created = new Date(yesterday1am.getTime() - index * 60000);
             } else {
-                // Convert to a Date if it's a string
                 item.created = new Date(item.created);
             }
         });
@@ -56,7 +53,7 @@ export namespace HistoryStorage {
     };
 
     export const write = (history: ContentSet[]) => {
-        console.debug("HistoryStorage.write", history)
+        // console.debug("HistoryStorage.write", history)
         localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     }
 }
@@ -77,7 +74,7 @@ export namespace GradeStorage {
         const level = localStorage.getItem(LEVEL_KEY);
         if (!level) {
             write(0);
-            return 1;
+            return 0;
         }
         return parseInt(level, 10);
     }

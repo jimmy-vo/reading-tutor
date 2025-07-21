@@ -4,18 +4,21 @@ import styles from './InactiveTracker.module.css';
 
 interface InactiveTrackerProps {
   className?: string;
+  onAlarm: () => void;
 }
 
-const InactiveTracker: React.FC<InactiveTrackerProps> = ({ className }) => {
+const InactiveTracker: React.FC<InactiveTrackerProps> = ({
+  className,
+  onAlarm,
+}) => {
   const [progress, setProgress] = useState(100);
-  const [audio, setAudio] = useState<HTMLAudioElement>();
 
   useEffect(() => {
-    setAudio(new Audio('alarm.mp3'));
     InactiveTrackerService.register((value) => {
       setProgress(value);
+      if (value === progress) return;
       if (value <= 0) {
-        playAlarm();
+        onAlarm();
       }
     });
 
@@ -23,12 +26,6 @@ const InactiveTracker: React.FC<InactiveTrackerProps> = ({ className }) => {
       InactiveTrackerService.stop();
     };
   }, []);
-
-  const playAlarm = () => {
-    if (!audio) return;
-    console.debug('Play alarm');
-    audio.play();
-  };
 
   return (
     <div className={className}>

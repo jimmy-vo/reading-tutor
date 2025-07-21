@@ -1,14 +1,11 @@
 import React, { createContext, useContext, ReactNode, useEffect } from 'react';
 import { ContentSet, GradeGroup } from '../models/view/interface';
 import { useState } from 'react';
-import { Progress } from '../services/appService';
+import { ProgressService } from '../services/progressService';
 import { ContentClient } from '../services/clientSerivce';
 
 interface ProgressType {
-  grades: GradeGroup[];
-  progressManager: Progress;
-  selectedItem: ContentSet | undefined;
-  setSelectedItem: React.Dispatch<React.SetStateAction<ContentSet>>;
+  progressService: ProgressService;
   submit: (ContentSet) => Promise<void>;
 }
 
@@ -16,31 +13,41 @@ const ProgressContext = createContext<ProgressType | undefined>(undefined);
 
 export const ProgressProvider = ({
   children,
+  onGradesChanged,
+  onActiveItemChanged,
+  onReady,
   onSucceeded,
   onFailed,
 }: {
   children?: ReactNode;
+  onGradesChanged: (grades: GradeGroup[]) => void;
+  onActiveItemChanged: (item: ContentSet) => void;
+  onReady: (gradeId: number, itemId: string) => void;
   onSucceeded: (gradeId: number) => void;
   onFailed: (gradeId: number) => void;
 }) => {
-  const [progressManager] = useState<Progress>(new Progress());
-  const [grades, setGrades] = useState<GradeGroup[]>([]);
-  const [selectedItem, setSelectedItem] = useState<ContentSet | undefined>();
+  const [progressService] = useState<ProgressService>(new ProgressService());
 
   useEffect(() => {
     const fetchProgress = async () => {
-      await progressManager.intitialize();
-      setGrades(progressManager.getGrades());
-      const item = await progressManager.getCurrentActiveItem();
+      await progressService.intitialize();
+      console.log(progressService);
+      let item = await progressService.getCurrentActiveItem();
       if (!item) {
-        progressManager.generateNewItem();
-        setGrades(progressManager.getGrades());
+        await progressService.generateNewItem();
       }
-      setSelectedItem(progressManager.getLastItem());
+      item = await progressService.getCurrentActiveItem();
+      onReady(item.gradeId, item.id);
+      onGradesChanged(progressService.getGrades());
     };
 
     fetchProgress();
   }, []);
+
+  const handleActiveItemChanged = (item: ContentSet) => {
+    progressService.updateItem(item);
+    onActiveItemChanged(item);
+  };
 
   const submit = async (updatedContentSet) => {
     const evaluatedChallenges = await ContentClient.getEvaluation(
@@ -50,36 +57,44 @@ export const ProgressProvider = ({
       ...updatedContentSet,
       challenges: evaluatedChallenges,
     };
-    if (updatedSet.challenges.every((x) => x.correct === true)) {
-      await progressManager.generateNewItem();
-      onSucceeded(progressManager.getCurrentGrade());
-      setGrades(progressManager.getGrades());
+    handleActiveItemChanged(updatedSet);
+    const succeeded = updatedSet.challenges.every((x) => x.correct === true);
+    if (succeeded) {
+      onSucceeded(progressService.getCurrentGrade());
     } else {
-      onFailed(progressManager.getCurrentGrade());
+      onFailed(progressService.getCurrentGrade());
     }
+    await Promise.all([
+      progressService
+        .generateNewItem()
+        .then(() => onGradesChanged(progressService.getGrades())),
+      (async () => {
+        if (!succeeded) return;
 
-    //getting image
-    updatedSet.image = null;
-    progressManager.updateItem(updatedSet);
-    setSelectedItem(updatedSet);
-    return ContentClient.getImage(updatedSet)
-      .then((imageId) => {
-        console.info('Get the image...');
-        updatedSet.image = imageId;
-        setSelectedItem(updatedSet);
-      })
-      .catch((e) => {
-        console.error(e);
-        console.info('Reset image id');
-        updatedSet.image = undefined;
-        setSelectedItem(updatedSet);
-      });
+        console.info('Getting the image...');
+        updatedSet.image = null;
+        handleActiveItemChanged({ ...updatedSet, image: null });
+
+        return await ContentClient.getImage(updatedSet)
+          .then((imageId) => {
+            console.info('Got the image!');
+            updatedSet.image = imageId;
+            handleActiveItemChanged({ ...updatedSet });
+          })
+          .catch((e) => {
+            console.error(e);
+            console.info('Reset image id');
+            updatedSet.image = undefined;
+            handleActiveItemChanged({ ...updatedSet });
+          });
+      })(),
+    ]);
+    handleActiveItemChanged({ ...updatedSet });
   };
 
+  console.debug('Home');
   return (
-    <ProgressContext.Provider
-      value={{ grades, selectedItem, progressManager, setSelectedItem, submit }}
-    >
+    <ProgressContext.Provider value={{ progressService, submit }}>
       {children}
     </ProgressContext.Provider>
   );

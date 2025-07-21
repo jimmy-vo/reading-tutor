@@ -35,7 +35,7 @@ export default async function handler(
         .send(input.qna.map(x => ({
           id: x.id,
           suggestion: "",
-          correct: Env.Llm.mockedApi
+          correct: true
         })))
     }
 

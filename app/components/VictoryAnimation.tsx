@@ -8,21 +8,11 @@ const VictoryAnimation = ({
   onAnimationEnd: () => void;
   length: number;
 }) => {
-  const [hasPlayed, setHasPlayed] = useState(false);
-
-  const playVictoryHorn = () => {
-    if (hasPlayed) return;
-    setHasPlayed(true);
-    const audio = new Audio('victory.mp3');
-    audio.play();
-  };
-
   useEffect(() => {
     const timer = setTimeout(() => {
       onAnimationEnd();
     }, 3000);
 
-    playVictoryHorn();
     return () => clearTimeout(timer);
   }, [onAnimationEnd]);
 

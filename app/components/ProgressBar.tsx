@@ -1,25 +1,46 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './ProgressBar.module.css';
-import { GradeState, ItemState } from '../models/view/interface';
-import { useProgress } from '../context/ProgressProvider';
+import { GradeGroup, GradeState, ItemState } from '../models/view/interface';
 
 interface ProgressDotsProps {
   className?: string;
-  selectedGrade?: number;
-  onGradeSelected?: (gradeId: number) => void;
+  grades: GradeGroup[];
+  currentItemId?: string;
+  selectedGradeId?: number;
+  onGradeIdSelected?: (id: number) => void;
+  onItemIdSelected?: (id: string) => void;
 }
 
 export const ProgressDots: React.FC<ProgressDotsProps> = ({
   className,
-  selectedGrade,
-  onGradeSelected,
+  grades,
+  currentItemId,
+  selectedGradeId,
+  onGradeIdSelected,
+  onItemIdSelected,
 }) => {
-  const { grades, selectedItem, setSelectedItem } = useProgress();
+  useEffect(() => {
+    if (selectedGradeId < 0) return;
+    if (grades?.length === 0) return;
+    if (
+      grades
+        .find((x) => x.id === selectedGradeId)
+        .items.some((x) => x.value && x.value.id === currentItemId)
+    )
+      return;
+    const expectedGradeId = grades.find((x) =>
+      x.items.some((x) => x.value && x.value.id === currentItemId),
+    )?.id;
+    if (!expectedGradeId) return;
+    onGradeIdSelected(expectedGradeId);
+  }, [currentItemId, grades]);
+
+  if (grades?.length === 0) return <div></div>;
 
   return (
     <div className={className} aria-hidden="true">
       {grades.map((gradeGroup) => {
-        const expanded = selectedGrade === gradeGroup.id;
+        const expanded = selectedGradeId === gradeGroup.id;
         return (
           <div key={`grade-${gradeGroup.id}`} className={styles.gradeGroup}>
             {/* Big dot for grade */}
@@ -37,7 +58,7 @@ export const ProgressDots: React.FC<ProgressDotsProps> = ({
                   }
                 })(),
               ].join(' ')}
-              onClick={() => onGradeSelected(gradeGroup.id)}
+              onClick={() => onGradeIdSelected(gradeGroup.id)}
               style={{ cursor: 'pointer' }}
             >
               {gradeGroup.id}
@@ -48,9 +69,7 @@ export const ProgressDots: React.FC<ProgressDotsProps> = ({
                 <div
                   key={`grade-${gradeGroup.id}-dot-${idx}`}
                   onClick={() =>
-                    dot.value.topic !== selectedItem?.topic && dot.value
-                      ? setSelectedItem(dot.value)
-                      : undefined
+                    dot.value ? onItemIdSelected(dot.value.id) : undefined
                   }
                   style={{
                     cursor: dot.value !== undefined ? 'pointer' : 'default',
@@ -74,7 +93,7 @@ export const ProgressDots: React.FC<ProgressDotsProps> = ({
                     })(),
                     expanded ? styles.expanded : styles.collapsed,
                     dot.value === undefined ? styles.noHover : '',
-                    dot.value?.topic == selectedItem?.topic && expanded
+                    dot.value?.id == currentItemId && expanded
                       ? styles.selected
                       : '',
                   ]

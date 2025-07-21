@@ -1,5 +1,6 @@
 
 export interface ContentSet {
+  id?: string
   created?: Date;
   gradeId: number;
   topic: string;
@@ -45,5 +46,6 @@ export interface GradeItem {
 export interface GradeGroup {
   items: GradeItem[];
   state: GradeState;
+  count: number;
   id: number;
 }

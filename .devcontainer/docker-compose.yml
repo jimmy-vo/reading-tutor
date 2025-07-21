@@ -1,7 +1,7 @@
 services:
   reading-tutor-ws:
     container_name: reading-tutor-ws-cnr
-    image: mcr.microsoft.com/devcontainers/javascript-node:20
+    image: mcr.microsoft.com/devcontainers/typescript-node:20
     security_opt:
       - seccomp:unconfined
     command: /bin/sh -c "while sleep 1000; do :; done"

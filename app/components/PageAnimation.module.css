@@ -1,0 +1,92 @@
+/* --- Core Page Animation Styles --- */
+.page-animation-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.page-animation-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  perspective: 2500px;
+}
+
+.bookBase {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: absolute;
+}
+
+/* This is the PageWrapper's div */
+
+.page {
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  overflow-y: scroll;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.05);
+}
+
+.bookBase > .page {
+  width: 50%;
+  position: relative; /* Changed from absolute */
+}
+
+.pageFlipper {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  top: 0;
+  transform-style: preserve-3d;
+}
+
+.pageFlipper.turning-forward {
+  left: 50%;
+  transform-origin: left center;
+  animation: flip-forward var(--animation-duration) ease-in-out forwards;
+}
+
+.pageFlipper.turning-backward {
+  left: 0;
+  transform-origin: right center;
+  animation: flip-backward var(--animation-duration) ease-in-out forwards;
+}
+
+.pageFlipper .pageFront,
+.pageFlipper .pageBack {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.pageFlipper .pageBack {
+  transform: rotateY(180deg);
+}
+
+@keyframes flip-forward {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(-180deg);
+  }
+}
+
+@keyframes flip-backward {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(180deg);
+  }
+}
