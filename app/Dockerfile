@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM node:24-alpine3.21 AS builder
+FROM node:24.4.1-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -23,7 +23,7 @@ COPY context/ ./context
 RUN npm run build
 
 # Stage 2: Run the application
-FROM node:24-alpine3.21
+FROM node:24.4.1-bookworm-slim
 
 WORKDIR /app
 
