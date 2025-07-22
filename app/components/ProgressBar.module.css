@@ -1,5 +1,3 @@
-/* Only styles used by ProgressDots are kept */
-
 .gradeGroup {
   display: flex;
   align-items: center;
@@ -29,20 +27,20 @@
   transform: none;
 }
 
-.orange {
-  background-color: orange;
+.completed {
+  background-color: rgb(48, 213, 200);
 }
 
-.green {
-  background-color: green;
+.active {
+  background-color: rgb(0, 0, 128);
 }
 
-.grey {
-  background-color: grey;
+.remaining {
+  background-color: rgb(170, 170, 162);
 }
 
-.red {
-  background-color: red;
+.incorrect {
+  background-color: rgb(255, 0, 0);
 }
 
 .smallDot.expanded {

@@ -127,12 +127,12 @@ export const PageAnimation = ({
         {/* --- The Book's "Base" --- */}
         {/* This layer holds the pages that are stationary or being revealed. */}
         <div className={styles.bookBase}>
-          <PageWrapper>
+          <PageWrapper className={styles.pageLeft}>
             {animation.type === 'turning-backward'
               ? newLeftPage
               : currentPageLeft || null}
           </PageWrapper>
-          <PageWrapper>
+          <PageWrapper className={styles.pageRight}>
             {animation.type === 'turning-forward'
               ? newRightPage
               : currentPageRight || null}
@@ -169,6 +169,10 @@ export const PageAnimation = ({
 };
 
 // Wrapper to ensure consistent styling and prevent prop conflicts
-const PageWrapper = ({ children }: { children?: ReactNode }) => (
-  <div className={styles.page}>{children}</div>
-);
+const PageWrapper = ({
+  children,
+  className,
+}: {
+  children?: ReactNode;
+  className?: string;
+}) => <div className={`${styles.page} ${className}`}>{children}</div>;

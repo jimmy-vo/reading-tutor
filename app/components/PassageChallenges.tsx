@@ -7,9 +7,10 @@ import Button from './Button';
 
 interface PassageChallengesProps {
   item: ContentSet;
+  key?: React.Key;
 }
 
-const PassageChallenges: React.FC<PassageChallengesProps> = ({ item }) => {
+const PassageChallenges: React.FC<PassageChallengesProps> = ({ item, key }) => {
   const { submit } = useProgress();
   const [localChallenges, setChallenges] = useState(item.challenges);
   const [isSubmitDisabled, setSubmitDisabled] = useState(true);
@@ -37,8 +38,8 @@ const PassageChallenges: React.FC<PassageChallengesProps> = ({ item }) => {
   };
 
   return (
-    <div>
-      <div aria-hidden="true" className={styles.container}>
+    <div className={styles.container} key={key}>
+      <div aria-hidden="true" className={styles.inputContainer}>
         {localChallenges.map((qna, index) => (
           <div key={qna.id}>
             <p className={styles.question}> {qna.question} </p>
@@ -56,10 +57,10 @@ const PassageChallenges: React.FC<PassageChallengesProps> = ({ item }) => {
                 ) : (
                   <div>
                     {localChallenges[index].correct === true && (
-                      <div style={{ color: 'green' }}>✔️</div>
+                      <div style={{ color: 'active' }}>✔️</div>
                     )}
                     {localChallenges[index].correct === false && (
-                      <div style={{ color: 'red' }}>❌</div>
+                      <div style={{ color: 'incorrect' }}>❌</div>
                     )}
                   </div>
                 )}
@@ -73,14 +74,10 @@ const PassageChallenges: React.FC<PassageChallengesProps> = ({ item }) => {
         ))}
       </div>
 
-      {item.challenges.every(x => x.correct === undefined) && (
-        <div className={styles.ButtonContainer}>
-          <Button
-            className={styles.fancyButton}
-            onClick={handleSubmit}
-            disabled={isSubmitDisabled}
-          >
-            Submit
+      {item.challenges.every((x) => x.correct === undefined) && (
+        <div className={styles.buttonContainer}>
+          <Button onClick={handleSubmit} disabled={isSubmitDisabled}>
+            &#10004;
           </Button>
         </div>
       )}

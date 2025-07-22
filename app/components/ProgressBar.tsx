@@ -50,11 +50,11 @@ export const ProgressDots: React.FC<ProgressDotsProps> = ({
                 (function () {
                   switch (gradeGroup.state) {
                     case GradeState.completed:
-                      return styles.orange;
+                      return styles.completed;
                     case GradeState.active:
-                      return styles.green;
+                      return styles.active;
                     default:
-                      return styles.grey;
+                      return styles.remaining;
                   }
                 })(),
               ].join(' ')}
@@ -79,14 +79,14 @@ export const ProgressDots: React.FC<ProgressDotsProps> = ({
                     (() => {
                       switch (dot.state) {
                         case ItemState.incorrect:
-                          return styles.red;
+                          return styles.incorrect;
                         case ItemState.invalidCorrect:
                         case ItemState.validCorrect:
-                          return styles.orange;
+                          return styles.completed;
                         case ItemState.active:
-                          return styles.green;
+                          return styles.active;
                         case ItemState.toDo:
-                          return styles.grey;
+                          return styles.remaining;
                         default:
                           return '';
                       }

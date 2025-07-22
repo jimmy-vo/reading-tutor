@@ -48,7 +48,6 @@ export namespace HistoryStorage {
             }
         });
 
-        history.sort((a, b) => b.created!.getTime() - a.created!.getTime());
         return history;
     };
 

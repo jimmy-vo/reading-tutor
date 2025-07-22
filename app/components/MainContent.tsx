@@ -1,11 +1,10 @@
 import React from 'react';
-import styles from './ResponsiveMain.module.css';
 import { useProgress } from '../context/ProgressProvider';
 import PassageContainer from './PassageContainer';
 import PassageChallenges from './PassageChallenges';
 import { PageAnimation, PageAnimationHelper } from './PageAnimation';
 
-export const ResponsiveMain: React.FC<{
+export const MainContent: React.FC<{
   className?: string;
   selectedItemId: string;
   onCurrentIdChanged: (id: string) => void;
@@ -16,27 +15,19 @@ export const ResponsiveMain: React.FC<{
     <PageAnimation
       onCurrentIdChanged={onCurrentIdChanged}
       selectedId={selectedItemId}
-      className={`${styles.bookContainer} ${className}`}
+      className={className}
     >
       {progressManager
         .getItems()
         .map((item) => [
-          <div
-            className={styles.textContainer}
-            key={PageAnimationHelper.toKey(item.id)}
-          >
+          <div key={PageAnimationHelper.toKey(item.id)}>
             <PassageContainer
               topic={item.topic}
               imageId={item.image}
               text={item.text}
             />
           </div>,
-          <div
-            className={styles.challengesContainer}
-            key={`${item.id}-challenges`}
-          >
-            <PassageChallenges item={item} />
-          </div>,
+          <PassageChallenges item={item} key={`${item.id}-challenges`} />,
         ])
         .flat()}
     </PageAnimation>

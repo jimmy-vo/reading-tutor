@@ -38,6 +38,10 @@ export class ProgressService {
         this.findCurrentGrade()?.items?.findLast(x => x.state !== ItemState.toDo)?.value;
 
     public generateNewItem = async (): Promise<void> => {
+        if (this.getCurrentActiveItem()) {
+            console.warn("There is currently an active item");
+            return;
+        }
         const topics = this.history.map(x => x.topic);
         const topic = await ContentClient.getTopic(topics, this.gradeId);
         const content = await ContentClient.getContent(topic, this.gradeId);
@@ -191,7 +195,7 @@ export class ProgressService {
         const allDots: GradeItem[] =
             gradeState === GradeState.completed
                 ? [
-                    ...Array(gradeProgress.count - dots.length).fill({
+                    ...Array(Math.max(gradeProgress.count - dots.length, 0)).fill({
                         state: ItemState.validCorrect,
                         isSelected: false,
                     }),
@@ -199,7 +203,7 @@ export class ProgressService {
                 ]
                 : [
                     ...dots.reverse(),
-                    ...Array(gradeProgress.count - lastIdxInArow.length).fill({
+                    ...Array(Math.max(gradeProgress.count - lastIdxInArow.length, 0)).fill({
                         state: ItemState.toDo,
                         isSelected: false,
                     }),

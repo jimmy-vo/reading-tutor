@@ -1,4 +1,4 @@
-import { ResponsiveMain } from '../components/ResponsiveMain';
+import { MainContent } from '../components/MainContent';
 import { ProgressDots } from '../components/ProgressBar';
 import InactiveTracker from '../components/InactiveTracker';
 import styles from './index.module.css';
@@ -85,8 +85,8 @@ export default function Home() {
           />
         )}
         {selectedItemId !== '' && (
-          <ResponsiveMain
-            className={styles.mainContent}
+          <MainContent
+            className={styles.bookCover}
             selectedItemId={selectedItemId}
             onCurrentIdChanged={setCurrentItemId}
           />

@@ -3,6 +3,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { EvaluationInput, EvaluationOutput } from '../../models/dtoInterface';
 import { Env } from '../../services/configService';
 
+const mockedReturnValue = true;
+
 const examples: EvaluationOutput[] = [
   {
     id: 'questionId1',
@@ -35,7 +37,7 @@ export default async function handler(
         .send(input.qna.map(x => ({
           id: x.id,
           suggestion: "",
-          correct: true
+          correct: mockedReturnValue
         })))
     }
 

@@ -5,12 +5,16 @@
   overflow: hidden;
 }
 
-.mainContent {
-  background-color: #aa7520;
-  padding: 20px;
-  border-radius: 10px;
-  font-family: 'Comic Sans MS', cursive, sans-serif;
-  margin: auto;
+.bookCover {
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  background: radial-gradient(circle at left, #5a0a0a, #3b0606);
+  transform-origin: right center;
+
+  width: max(calc(100% - 100px), 600px);
+  height: max(calc(100% - 100px), 6500px);
+  padding: 10px 15px;
+  margin: 40px auto;
 }
 
 .progressBar {
