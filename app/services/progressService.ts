@@ -1,16 +1,16 @@
-import { ContentClient } from './clientSerivce';
+import { GradeItemClient } from './gradeClientService';
 import { ContentSet, GradeGroup, GradeItem, GradeState, ItemState, ProgressGrade } from '../models/view/interface';
-import { HistoryStorage, GradeStorage, Util } from './storageService';
+import { HistoryIdStorage } from './storageService';
 import { Env } from './configService';
 
 export class ProgressService {
-
+    private _historyId: string
     private history: ContentSet[] = [];
     private gradeId: number = -1;
     private gradeGroups: GradeGroup[];
 
-    public constructor() {
-    }
+    public constructor() { }
+
 
     public intitialize = async () => {
         await new Promise((resolve) => {
@@ -20,12 +20,22 @@ export class ProgressService {
                     resolve(true);
                 }
             }, 100);
-        }).then(() => {
-            this.history = HistoryStorage.read();
-            this.gradeId = GradeStorage.read();
-            this.gradeGroups = ProgressService.getGradeGroupProgress(this.history, this.gradeId);
+        }).then(async () => {
+            this._historyId = HistoryIdStorage.read();
+            this.history = await GradeItemClient.getAll(this._historyId);
+            console.log(this.history)
+            this.gradeId = Math.max(...this.history.map(x => x.gradeId));
+            this.gradeGroups = Env.grades.map((grade) => ({
+                id: grade.id,
+                count: grade.count,
+                history: this.history
+                    .filter((c) => c.gradeId === grade.id),
+            } as ProgressGrade))
+                .filter((x) => x.history.length !== 0 || x.id >= this.gradeId)
+                .map((gradeProgress) => ProgressService.getGradeProgress(gradeProgress, this.gradeId));
         });
     }
+    public getHistoryId = (): string => this._historyId;
     public getCurrentGrade = (): number => this.gradeId;
     public getGrades = (): GradeGroup[] => this.gradeGroups;
     public getItems = (): ContentSet[] => this.gradeGroups.flatMap(x => x.items).filter(x => x.value).map(x => x.value);
@@ -42,41 +52,22 @@ export class ProgressService {
             console.warn("There is currently an active item");
             return;
         }
-        const topics = this.history.map(x => x.topic);
-        const topic = await ContentClient.getTopic(topics, this.gradeId);
-        const content = await ContentClient.getContent(topic, this.gradeId);
-        const item: ContentSet = {
-            topic: topic,
-            id: Util.getGuid(),
-            created: new Date(),
-            gradeId: this.gradeId,
-            text: content.passage,
-            image: undefined,
-            challenges: content.qna.map(x => ({
-                id: x.id,
-                explaination: "",
-                question: x.question,
-                answer: "",
-                expected: x.answer,
-                correct: undefined,
-            }))
-        };
-        this.history.push(item);
-        HistoryStorage.write(this.history);
-        const grade: GradeGroup = this.gradeGroups.find(x => x.id === item.gradeId);
+        const content: ContentSet | null = await GradeItemClient.createOne(this._historyId);
+        if (!content) return;
+        this.history.push(content);
+        const grade: GradeGroup = this.gradeGroups.find(x => x.id === content.gradeId);
         const firstIdx: number = grade.items.findIndex(x => x.state === ItemState.toDo);
         grade.items[firstIdx] = {
             state: ItemState.active,
-            value: item,
+            value: content,
         }
-        this.onItemsChanged(item.gradeId)
+        this.onItemsChanged(content.gradeId)
     }
 
     public updateItem = (item: ContentSet) => {
         const grade: GradeGroup = this.gradeGroups.find(x => x.id === item.gradeId);
         const historyIdx: number = this.history.findIndex(x => x?.id === item.id);
         this.history[historyIdx] = item;
-        HistoryStorage.write(this.history);
         const firstIdx: number = grade.items.findIndex(x => x?.value?.id === item.id);
         const prevState: ItemState = grade.items[firstIdx].state;
         grade.items[firstIdx] = ProgressService.GetGradeItem(item, grade.state);
@@ -215,17 +206,5 @@ export class ProgressService {
             id: gradeProgress.id,
             count: gradeProgress.count
         } as GradeGroup;
-    }
-
-    private static getGradeGroupProgress = (history: ContentSet[], currentGradeId: number): GradeGroup[] => {
-        return Env.grades.map((grade) => ({
-            id: grade.id,
-            count: grade.count,
-            history: history
-                .filter((c) => c.gradeId === grade.id),
-        } as ProgressGrade))
-            .filter((x) => x.history.length !== 0 || x.id >= currentGradeId)
-            .map((gradeProgress) => ProgressService.getGradeProgress(gradeProgress, currentGradeId));
-
     }
 }

@@ -1,12 +1,22 @@
 
 export interface ContentSet {
-  id?: string
-  created?: Date;
-  gradeId: number;
   topic: string;
-  text: string;
-  image: string | undefined | null;
+  id: string;
+  created: Date;
+  gradeId: number;
+  passage: string;
+  image?: string;
   challenges: Challenge[];
+}
+
+export interface Content {
+  topic: string;
+  passage: string;
+  qna: {
+    id: string;
+    question: string;
+    answer: string;
+  }[];
 }
 
 export interface Challenge {

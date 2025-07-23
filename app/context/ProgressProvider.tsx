@@ -2,11 +2,11 @@ import React, { createContext, useContext, ReactNode, useEffect } from 'react';
 import { ContentSet, GradeGroup } from '../models/view/interface';
 import { useState } from 'react';
 import { ProgressService } from '../services/progressService';
-import { ContentClient } from '../services/clientSerivce';
+import { GradeItemClient } from '../services/gradeClientService';
 
 interface ProgressType {
   progressService: ProgressService;
-  submit: (ContentSet) => Promise<void>;
+  submit: (content: ContentSet) => Promise<void>;
 }
 
 const ProgressContext = createContext<ProgressType | undefined>(undefined);
@@ -49,16 +49,13 @@ export const ProgressProvider = ({
     onActiveItemChanged(item);
   };
 
-  const submit = async (updatedContentSet) => {
-    const evaluatedChallenges = await ContentClient.getEvaluation(
-      updatedContentSet,
+  const submit = async (item: ContentSet) => {
+    let patchedItem: ContentSet = await GradeItemClient.patchOne(
+      progressService.getHistoryId(),
+      item,
     );
-    const updatedSet: ContentSet = {
-      ...updatedContentSet,
-      challenges: evaluatedChallenges,
-    };
-    handleActiveItemChanged(updatedSet);
-    const succeeded = updatedSet.challenges.every((x) => x.correct === true);
+    handleActiveItemChanged(patchedItem);
+    const succeeded = patchedItem.challenges.every((x) => x.correct === true);
     if (succeeded) {
       onSucceeded(progressService.getCurrentGrade());
     } else {
@@ -72,24 +69,16 @@ export const ProgressProvider = ({
         if (!succeeded) return;
 
         console.info('Getting the image...');
-        updatedSet.image = null;
-        handleActiveItemChanged({ ...updatedSet, image: null });
+        handleActiveItemChanged({ ...patchedItem, image: null });
 
-        return await ContentClient.getImage(updatedSet)
-          .then((imageId) => {
-            console.info('Got the image!');
-            updatedSet.image = imageId;
-            handleActiveItemChanged({ ...updatedSet });
-          })
-          .catch((e) => {
-            console.error(e);
-            console.info('Reset image id');
-            updatedSet.image = undefined;
-            handleActiveItemChanged({ ...updatedSet });
-          });
+        patchedItem = await GradeItemClient.patchOne(
+          progressService.getHistoryId(),
+          patchedItem,
+        );
+        handleActiveItemChanged({ ...patchedItem });
       })(),
     ]);
-    handleActiveItemChanged({ ...updatedSet });
+    handleActiveItemChanged({ ...patchedItem });
   };
 
   console.debug('Home');

@@ -1,4 +1,4 @@
-import { ContentSet } from "../models/view/interface";
+import { Env } from "./configService";
 
 export namespace Util {
     export const getGuid = (): string => {
@@ -25,56 +25,22 @@ export namespace InactiveTrackerStorage {
     };
 }
 
-export namespace HistoryStorage {
 
-    const HISTORY_KEY = 'list';
-    export const read = (): ContentSet[] => {
-        console.debug("HistoryStorage.read")
-        const reports = localStorage.getItem(HISTORY_KEY);
-        const history = reports ? JSON.parse(reports) : [];
-
-        const yesterday1am = new Date();
-        yesterday1am.setDate(yesterday1am.getDate() - 1);
-        yesterday1am.setHours(12, 0, 0, 0);
-
-        history.forEach((item, index) => {
-            if (!item.id) {
-                item.id = Util.getGuid();
-            }
-            if (!item.created) {
-                item.created = new Date(yesterday1am.getTime() - index * 60000);
-            } else {
-                item.created = new Date(item.created);
-            }
-        });
-
-        return history;
-    };
-
-    export const write = (history: ContentSet[]) => {
-        // console.debug("HistoryStorage.write", history)
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-    }
-}
-
-export namespace GradeStorage {
-
-    const LEVEL_KEY = 'level';
-    export const write = (level: number) => {
-        console.debug("ContentStorage.write", level)
-        if (level < 0 || level > 9) {
-            throw new Error('Level must be between 1 and 9');
-        }
-        localStorage.setItem(LEVEL_KEY, level.toString());
+export namespace HistoryIdStorage {
+    const defaultValue = Env.defaultHistoryId
+    const KEY = 'historyId';
+    export const write = (id: string) => {
+        console.debug("HistoryIdStorage.write", id)
+        localStorage.setItem(KEY, id);
     }
 
-    export const read = (): number => {
-        console.debug("GradeStorage.read")
-        const level = localStorage.getItem(LEVEL_KEY);
-        if (!level) {
-            write(0);
-            return 0;
+    export const read = (): string => {
+        console.debug("HistoryIdStorage.read")
+        const id = localStorage.getItem(KEY);
+        if (!id) {
+            write(defaultValue);
+            return defaultValue;
         }
-        return parseInt(level, 10);
+        return id;
     }
 }

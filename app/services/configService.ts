@@ -5,6 +5,7 @@ dotenv.config();
 
 export namespace Env {
     export const imageStorage = process.env.IMAGE_STORAGE!;
+    export const defaultHistoryId = "will"
     export namespace Llm {
         export const azureOpenaiChatApiKey = process.env.AZURE_OPENAI_CHAT_API_KEY;
         export const azureOpenaiChatEndpoint = process.env.AZURE_OPENAI_CHAT_ENDPOINT;
@@ -19,17 +20,6 @@ export namespace Env {
         export const enabled = azureOpenaiImageApiKey && azureOpenaiImageEndpoint && azureOpenaiImageDeployment;
         export const mockedApi: boolean | undefined = process.env.AZURE_OPENAI_IMAGE_MOCKED_API ? process.env.AZURE_OPENAI_IMAGE_MOCKED_API === 'true' : undefined;
     }
-
-
-    export const getShowResetFromStorage = (): boolean => {
-        let showReset = localStorage.getItem('showReset');
-        if (showReset === null) {
-            showReset = `${false}`;
-            localStorage.setItem('showReset', showReset);
-        }
-        return JSON.parse(showReset);
-    };
-
     export const grades: Grade[] = [
         {
             id: 0,

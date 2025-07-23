@@ -20,13 +20,10 @@ export const MainContent: React.FC<{
       {progressManager
         .getItems()
         .map((item) => [
-          <div key={PageAnimationHelper.toKey(item.id)}>
-            <PassageContainer
-              topic={item.topic}
-              imageId={item.image}
-              text={item.text}
-            />
-          </div>,
+          <PassageContainer
+            item={item}
+            key={PageAnimationHelper.toKey(item.id)}
+          />,
           <PassageChallenges item={item} key={`${item.id}-challenges`} />,
         ])
         .flat()}

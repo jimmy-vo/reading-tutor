@@ -3,20 +3,17 @@ import html2canvas from 'html2canvas';
 import styles from './PassageContainer.module.css';
 import Spinner from './Spinner';
 import WordComponent from './WordComponent';
+import { useProgress } from '../context/ProgressProvider';
+import { ContentSet } from '../models/view/interface';
 
 interface PassageContainerProps {
-  topic: string;
-  imageId: string;
-  text: string;
+  item: ContentSet;
+  key?: React.Key;
 }
 
-const PassageContainer: React.FC<PassageContainerProps> = ({
-  topic,
-  imageId,
-  text,
-}) => {
+const PassageContainer: React.FC<PassageContainerProps> = ({ item, key }) => {
   const componentRef = useRef(null);
-
+  const { progressService } = useProgress();
   const captureImage = () => {
     if (componentRef.current) {
       html2canvas(componentRef.current).then((canvas) => {
@@ -27,40 +24,42 @@ const PassageContainer: React.FC<PassageContainerProps> = ({
           .replace(/T/, '-')
           .replace(/:/g, '-')
           .split('.')[0];
-        link.download = `${currentDateTime}-${topic}.png`;
+        link.download = `${currentDateTime}-${item.topic}.png`;
         link.click();
       });
     }
   };
   return (
-    <div ref={componentRef} className={styles.container}>
+    <div ref={componentRef} className={styles.container} key={key}>
       <p className={styles.title}>
-        {topic.split(' ').map((word, index) => (
+        {item.topic.split(' ').map((word, index) => (
           <WordComponent key={index} word={word} />
         ))}
       </p>
       <p className={styles.paragraph}>
-        {text.split(' ').map((word, index) => (
+        {item.passage.split(' ').map((word, index) => (
           <WordComponent key={index} word={word} />
         ))}
       </p>
       {(() => {
         switch (true) {
-          case imageId === null:
+          case item.image === null:
             return (
               <div className={styles.spinner}>
                 <Spinner />
               </div>
             );
-          case imageId === undefined:
+          case item.image === undefined:
             return null;
           default:
             return (
               <img
                 onClick={captureImage}
-                src={`/api/images/${imageId}`}
+                src={`/api/history/${progressService.getHistoryId()}/${
+                  item.id
+                }/image`}
                 className={styles.image}
-                alt={topic}
+                alt={item.topic}
               />
             );
         }

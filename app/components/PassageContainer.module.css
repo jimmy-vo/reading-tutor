@@ -11,6 +11,10 @@
 .paragraph {
   font-size: 16px;
   text-align: justify;
+
+  user-select: none; /* Prevents selection in most modern browsers */
+  -webkit-user-select: none; /* Chrome/Safari */
+  -ms-user-select: none; /* IE/Edge */
 }
 
 .spinner {

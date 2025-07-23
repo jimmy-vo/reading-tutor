@@ -19,15 +19,17 @@
 
 .explaination {
   font-size: 0.8em;
-  color: #3c706e;
+  color: rgb(255, 0, 0);
   margin-bottom: 10px;
   user-select: none;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 .question {
   margin-left: 20px;
   margin-right: 20px;
-  color: #ff4500;
+  color: rgb(0, 0, 128);
   font-size: 1.1em;
   margin-bottom: 10px;
   user-select: none;
