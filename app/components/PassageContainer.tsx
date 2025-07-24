@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import styles from './PassageContainer.module.css';
+import Image from 'next/image';
 import Spinner from './Spinner';
 import WordComponent from './WordComponent';
 import { useProgress } from '../context/ProgressProvider';
@@ -53,13 +54,15 @@ const PassageContainer: React.FC<PassageContainerProps> = ({ item, key }) => {
             return null;
           default:
             return (
-              <img
+              <Image
                 onClick={captureImage}
                 src={`/api/history/${progressService.getHistoryId()}/${
                   item.id
                 }/image`}
                 className={styles.image}
                 alt={item.topic}
+                width={500}
+                height={300}
               />
             );
         }

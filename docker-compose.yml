@@ -7,13 +7,5 @@ services:
       - "5001:3000"
     env_file:
       - ./app/.env
-    environment:
-      #   - AZURE_OPENAI_CHAT_API_KEY=${AZURE_OPENAI_CHAT_API_KEY:-}
-      #   - AZURE_OPENAI_CHAT_ENDPOINT=${AZURE_OPENAI_CHAT_ENDPOINT:-}
-      #   - AZURE_OPENAI_CHAT_DEPLOYMENT=${AZURE_OPENAI_CHAT_DEPLOYMENT:-}
-      #   - AZURE_OPENAI_IMAGE_API_KEY=${AZURE_OPENAI_IMAGE_API_KEY:-}
-      #   - AZURE_OPENAI_IMAGE_ENDPOINT=${AZURE_OPENAI_IMAGE_ENDPOINT:-}
-      #   - AZURE_OPENAI_IMAGE_DEPLOYMENT=${AZURE_OPENAI_IMAGE_DEPLOYMENT:-}
-      - IMAGE_STORAGE=/tmp/reading-tutor
     volumes:
       - ./volume:/tmp/reading-tutor

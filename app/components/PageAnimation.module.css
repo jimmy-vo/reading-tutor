@@ -54,18 +54,21 @@
   height: 100%;
   top: 0;
   transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .pageFlipper.turning-forward {
   left: 50%;
   transform-origin: left center;
   animation: flip-forward var(--animation-duration) ease-in-out forwards;
+  will-change: transform;
 }
 
 .pageFlipper.turning-backward {
   left: 0;
   transform-origin: right center;
   animation: flip-backward var(--animation-duration) ease-in-out forwards;
+  will-change: transform;
 }
 
 .pageFlipper .pageFront,

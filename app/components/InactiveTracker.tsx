@@ -25,7 +25,7 @@ const InactiveTracker: React.FC<InactiveTrackerProps> = ({
     return () => {
       InactiveTrackerService.stop();
     };
-  }, []);
+  }, [onAlarm, progress]);
 
   return (
     <div className={className}>

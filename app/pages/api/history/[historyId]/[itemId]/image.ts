@@ -26,6 +26,7 @@ export default async function handler(
 
         const image = fs.readFileSync(imagePath);
         res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
         res.send(image);
     }
     else {

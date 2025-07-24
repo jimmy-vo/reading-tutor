@@ -8,23 +8,8 @@ export const checkHistory = (historyId: string) => {
     return fs.existsSync(dirPath) && fs.lstatSync(dirPath).isDirectory();
 }
 
-export const migrateHistory = (historyId: string) => {
-    const oldFilePath = path.join(Env.imageStorage, `${historyId}.json`);
-    if (fs.existsSync(oldFilePath)) {
-        const fileContent = fs.readFileSync(oldFilePath, 'utf-8');
-        const history: ContentSet[] = JSON.parse(fileContent);
-        history.forEach(item => addItem(historyId, item));
-        const removeDirPath = path.join(Env.imageStorage, 'remove');
-        if (!fs.existsSync(removeDirPath)) {
-            fs.mkdirSync(removeDirPath);
-        }
-        const newFilePath = path.join(removeDirPath, `${historyId}.json`);
-        fs.renameSync(oldFilePath, newFilePath);
-    }
-}
 export const readHistory = (historyId: string): ContentSet[] => {
     const dirPath = path.join(Env.imageStorage, historyId);
-    migrateHistory(historyId);
     if (fs.existsSync(dirPath) && fs.lstatSync(dirPath).isDirectory()) {
         const files = fs.readdirSync(dirPath);
         const history: ContentSet[] = [];

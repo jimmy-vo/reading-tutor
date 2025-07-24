@@ -20,13 +20,19 @@ export const MainContent: React.FC<{
       {progressManager
         .getItems()
         .map((item) => [
-          <PassageContainer
+          <MemoizedPassageContainer
             item={item}
             key={PageAnimationHelper.toKey(item.id)}
           />,
-          <PassageChallenges item={item} key={`${item.id}-challenges`} />,
+          <MemoizedPassageChallenges
+            item={item}
+            key={`${item.id}-challenges`}
+          />,
         ])
         .flat()}
     </PageAnimation>
   );
 };
+
+const MemoizedPassageContainer = React.memo(PassageContainer);
+const MemoizedPassageChallenges = React.memo(PassageChallenges);

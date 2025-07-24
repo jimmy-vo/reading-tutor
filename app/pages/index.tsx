@@ -17,7 +17,7 @@ export default function Home() {
   const [selectedItemId, setSelectedItemId] = useState<string>('');
   const [currentItemId, setCurrentItemId] = useState<string>('');
   const [grades, setGrades] = useState<GradeGroup[]>([]);
-  const [_, setActiveItem] = useState<ContentSet>();
+  const [, setActiveItem] = useState<ContentSet>();
   const showCongrats = congratAnimation !== 0;
 
   const playSound = (file: string) => {
