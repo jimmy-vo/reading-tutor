@@ -17,7 +17,7 @@ export default async function handler(
     if (req.method === 'GET') {
         const item = getItem(historyId, itemId);
 
-        const imagePath = path.join(Env.imageStorage, historyId, "images", `${item.image}.png`);
+        const imagePath = path.join(Env.storagePath, historyId, "images", `${item.image}.png`);
 
         if (!fs.existsSync(imagePath)) {
             res.status(404).json({ error: 'Image not found' });

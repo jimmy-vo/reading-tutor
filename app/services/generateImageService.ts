@@ -9,6 +9,13 @@ const mockedImageId = true ? "mocked-id" : undefined;
 export const generateImage = async (historyId: string, item: ContentSet): Promise<ContentSet> => {
     const previousAttempts: string[] = [];
     const maxRetries = 3;
+
+    const imageDir = path.join(Env.storagePath, historyId, "images");
+    if (!fs.existsSync(imageDir)) {
+        fs.mkdirSync(imageDir, { recursive: true });
+    }
+
+    const imagePath = path.join(imageDir, `${item.image}.png`);
     if (Env.Disfusion.mockedApi !== undefined) {
         await new Promise(resolve => setTimeout(resolve, 500));
         item.image = mockedImageId
@@ -20,7 +27,6 @@ export const generateImage = async (historyId: string, item: ContentSet): Promis
             previousAttempts.push(prompt);
             const base64Image = await imageComplettion(prompt);
             const buffer = Buffer.from(base64Image, 'base64');
-            const imagePath = path.join(Env.imageStorage, historyId, "images", `${item.id}.png`);
             fs.writeFileSync(imagePath, buffer);
             return { ...item, image: item.id }
         } catch (error) {

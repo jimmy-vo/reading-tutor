@@ -4,7 +4,7 @@ import { Grade } from '../models/backend/interface';
 dotenv.config();
 
 export namespace Env {
-    export const imageStorage = process.env.IMAGE_STORAGE!;
+    export const storagePath = process.env.IMAGE_STORAGE!;
     export const defaultHistoryId = "will"
     export namespace Llm {
         export const azureOpenaiChatApiKey = process.env.AZURE_OPENAI_CHAT_API_KEY;

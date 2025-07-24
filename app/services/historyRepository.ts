@@ -4,12 +4,12 @@ import { ContentSet } from '../models/view/interface';
 import { Env } from './configService';
 
 export const checkHistory = (historyId: string) => {
-    const dirPath = path.join(Env.imageStorage, historyId);
+    const dirPath = path.join(Env.storagePath, historyId);
     return fs.existsSync(dirPath) && fs.lstatSync(dirPath).isDirectory();
 }
 
 export const readHistory = (historyId: string): ContentSet[] => {
-    const dirPath = path.join(Env.imageStorage, historyId);
+    const dirPath = path.join(Env.storagePath, historyId);
     if (fs.existsSync(dirPath) && fs.lstatSync(dirPath).isDirectory()) {
         const files = fs.readdirSync(dirPath);
         const history: ContentSet[] = [];
@@ -32,7 +32,7 @@ export const readHistory = (historyId: string): ContentSet[] => {
 };
 
 export const getItem = (historyId: string, itemId: string) => {
-    const filePath = path.join(Env.imageStorage, historyId, `${itemId}.json`);
+    const filePath = path.join(Env.storagePath, historyId, `${itemId}.json`);
     if (fs.existsSync(filePath)) {
         const fileContent = fs.readFileSync(filePath, 'utf-8');
         return JSON.parse(fileContent) as ContentSet;
@@ -42,7 +42,7 @@ export const getItem = (historyId: string, itemId: string) => {
 }
 
 export const addItem = (historyId: string, item: ContentSet) => {
-    const dirPath = path.join(Env.imageStorage, historyId);
+    const dirPath = path.join(Env.storagePath, historyId);
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath);
     }
@@ -51,7 +51,7 @@ export const addItem = (historyId: string, item: ContentSet) => {
 }
 
 export const updateItem = (historyId: string, item: ContentSet) => {
-    const filePath = path.join(Env.imageStorage, historyId, `${item.id}.json`);
+    const filePath = path.join(Env.storagePath, historyId, `${item.id}.json`);
     if (fs.existsSync(filePath)) {
         fs.writeFileSync(filePath, JSON.stringify(item, null, 2), 'utf-8');
     } else {
