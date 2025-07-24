@@ -33,10 +33,6 @@ export const ProgressProvider = ({
       await progressService.intitialize();
       console.log(progressService);
       let item = await progressService.getCurrentActiveItem();
-      if (!item) {
-        await progressService.generateNewItem();
-      }
-      item = await progressService.getCurrentActiveItem();
       onReady(item.gradeId, item.id);
       onGradesChanged(progressService.getGrades());
     };

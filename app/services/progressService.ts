@@ -33,7 +33,13 @@ export class ProgressService {
             } as ProgressGrade))
                 .filter((x) => x.history.length !== 0 || x.id >= this.gradeId)
                 .map((gradeProgress) => ProgressService.getGradeProgress(gradeProgress, this.gradeId));
-        });
+        }).then(async () => {
+            if (!this.getCurrentActiveItem()) {
+                await this.generateNewItem();
+                this.gradeId = Math.max(...this.history.map(x => x.gradeId));
+
+            }
+        })
     }
     public getHistoryId = (): string => this._historyId;
     public getCurrentGrade = (): number => this.gradeId;
