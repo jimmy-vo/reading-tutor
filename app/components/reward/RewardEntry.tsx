@@ -6,6 +6,8 @@ import { Reward, RewardStatus } from '../../models/backend/interface';
 import Spinner from '../common/Spinner';
 import { useRewardService } from '../../context/RewardServiceContext';
 
+type Option = { key: string; value: string };
+
 interface RewardEntryProps {
   item: Reward;
   prevBalance: number;
@@ -184,14 +186,14 @@ const RewardEntry: React.FC<RewardEntryProps> = ({
               {'❕'}
               {showDropdown && (
                 <DropdownOnly
-                  options={presets.map(
-                    (preset) =>
-                      `${preset.description} - ${dollarConvert(preset.amount)}`,
-                  )}
-                  onSelect={(description) => {
-                    const preset = presets.find(
-                      (p) => p.description === description,
-                    );
+                  options={presets.map((preset) => ({
+                    key: preset.id,
+                    value: `${preset.description} - ${dollarConvert(
+                      preset.amount,
+                    )}`,
+                  }))}
+                  onSelect={(opt) => {
+                    const preset = presets.find((p) => p.id === opt.key);
                     handlePresetChange(preset.id);
                   }}
                 />
@@ -230,15 +232,18 @@ const RewardEntry: React.FC<RewardEntryProps> = ({
     </tr>
   );
 };
+type DropdownOnlyProps = {
+  options: Option[];
+  onSelect: (option: Option) => void;
+};
 
-const DropdownOnly = ({ options, onSelect }) => {
+const DropdownOnly = ({ options, onSelect }: DropdownOnlyProps) => {
   const dropdownRef = useRef(null);
   const [position, setPosition] = useState('bottom');
 
   useEffect(() => {
     if (dropdownRef.current) {
       const rect = dropdownRef.current.getBoundingClientRect();
-      console.log(rect.bottom, window.innerHeight);
       if (rect.bottom < window.innerHeight / 2) {
         setPosition('top');
       } else {
@@ -264,12 +269,17 @@ const DropdownOnly = ({ options, onSelect }) => {
       {options.map((opt, idx) => (
         <li
           key={idx}
-          style={{ padding: '5px', cursor: 'pointer', color: 'black' }}
+          style={{
+            padding: '5px',
+            cursor: 'pointer',
+            color: 'black',
+            textAlign: 'left',
+          }}
           onClick={() => onSelect(opt)}
           onMouseOver={(e) => (e.currentTarget.style.background = '#eee')}
           onMouseOut={(e) => (e.currentTarget.style.background = '#fff')}
         >
-          {opt}
+          {opt.value}
         </li>
       ))}
     </ul>

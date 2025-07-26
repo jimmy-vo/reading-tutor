@@ -1,17 +1,6 @@
 import React, { useState } from 'react';
+import styles from './lab2.module.css';
 
-/**
- * A reusable, controlled component for a tile that can zoom to fullscreen.
- * @param {object} props
- * @param {boolean} props.isZoomed - Whether the tile is currently in its fullscreen state.
- * @param {boolean} props.isDimmed - Whether the tile should be dimmed (e.g., when another tile is active).
- * @param {function} props.onZoomIn - Callback function to trigger the zoom-in animation.
- * @param {function} props.onZoomOut - Callback function to trigger the zoom-out animation.
- * @param {React.ReactNode} props.tileContent - The content to display when in the small tile state.
- * @param {React.ReactNode} props.fullscreenContent - The content to display when in the fullscreen state.
- * @param {object} props.tileStyle - Inline styles to control the tile's initial size and position.
- * @param {string} props.tileClassName - Additional CSS classes for the tile.
- */
 const ZoomableTile = ({
   isZoomed,
   isDimmed,
@@ -31,20 +20,9 @@ const ZoomableTile = ({
   // We combine passed-in class names with the base classes.
   // The classes handle the transition, color, and shape.
   const containerClasses = `
-        fixed z-20 
         ${tileClassName}
-        transition-all duration-700 ease-in-out
-        transform
-        ${
-          isZoomed
-            ? 'w-full h-full top-0 left-0 rounded-none' // Fullscreen styles
-            : 'rounded-2xl cursor-pointer shadow-2xl hover:shadow-purple-400/50' // Tile styles
-        }
-        ${
-          isDimmed
-            ? 'opacity-0 scale-90 pointer-events-none'
-            : 'opacity-100 scale-100'
-        }
+        ${isZoomed ? 'zoomed' : 'tile'}
+        ${isDimmed ? 'dimmed' : ''}
     `;
 
   // The inline styles are applied directly. They control the animated properties:
@@ -55,24 +33,22 @@ const ZoomableTile = ({
 
   // These classes control the opacity of the fullscreen content.
   const contentClasses = `
-        transition-opacity duration-500
-        ${isZoomed ? 'opacity-100 delay-500' : 'opacity-0 pointer-events-none'}
-        w-full h-full flex flex-col items-center justify-center p-6
+        ${isZoomed ? 'fullscreen-content' : 'tile-content'}
     `;
 
   return (
     <>
       {/* A static placeholder div to mark the tile's original spot. */}
       <div
-        className={`fixed bg-gray-700/50 rounded-2xl transition-all duration-300 ${
-          isZoomed || isDimmed ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+        className={`${styles.placeholder} ${
+          isZoomed || isDimmed ? styles.hidden : ''
         }`}
         style={tileStyle}
       ></div>
 
       {/* The actual Zoomable Component */}
       <div
-        className={containerClasses}
+        className={`${styles.tile} ${containerClasses}`}
         style={dynamicStyle}
         onClick={!isZoomed ? onZoomIn : undefined}
         aria-expanded={isZoomed}
@@ -80,10 +56,10 @@ const ZoomableTile = ({
         tabIndex={0}
       >
         {/* Fullscreen content, only visible when zoomed in. */}
-        <div className={contentClasses}>
+        <div className={`${styles.fullscreenContent} ${contentClasses}`}>
           <button
             onClick={handleZoomOut}
-            className="absolute top-5 right-5 bg-white/20 text-white rounded-full p-3 hover:bg-white/30 transition-colors z-30"
+            className={styles.closeButton}
             aria-label="Close expanded view"
           >
             <svg
@@ -141,18 +117,8 @@ const App = () => {
   const tileStyle2 = { ...tileBaseStyle, left: `calc(50% + ${offset}px)` };
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center font-sans overflow-hidden">
+    <div className={styles.appContainer}>
       {/* Background text that fades when a tile is zoomed */}
-      <div
-        className={`text-center text-gray-500 transition-opacity duration-500 ${
-          zoomedTile ? 'opacity-0' : 'opacity-100'
-        }`}
-      >
-        <h1 className="text-3xl md:text-5xl font-bold mb-4">
-          Click a Tile Below
-        </h1>
-        <p>This demonstrates a reusable zoom component.</p>
-      </div>
 
       {/* First Tile */}
       <ZoomableTile
@@ -161,7 +127,7 @@ const App = () => {
         onZoomIn={() => setZoomedTile('tile1')}
         onZoomOut={() => setZoomedTile(null)}
         tileStyle={tileStyle1}
-        tileClassName="bg-gradient-to-br from-indigo-500 to-purple-600"
+        tileClassName={styles.tile1}
         tileContent={
           <div className="w-full h-full flex items-center justify-center p-2 text-center">
             <p className="font-bold text-base">Profile</p>
@@ -186,7 +152,7 @@ const App = () => {
         onZoomIn={() => setZoomedTile('tile2')}
         onZoomOut={() => setZoomedTile(null)}
         tileStyle={tileStyle2}
-        tileClassName="bg-gradient-to-br from-teal-400 to-blue-500"
+        tileClassName={styles.tile2}
         tileContent={
           <div className="w-full h-full flex items-center justify-center p-2 text-center">
             <p className="font-bold text-base">Settings</p>
