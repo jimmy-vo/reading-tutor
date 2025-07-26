@@ -21,7 +21,6 @@ const Rewards: React.FC = ({}) => {
     return reward.status === RewardStatus.Pending ? acc + reward.amount : acc;
   }, 0);
 
-  if ((rewards?.length ?? 0) === 0) return <></>;
   return (
     <div className={styles.rewardPage}>
       <div className={styles.balanceContainer}>

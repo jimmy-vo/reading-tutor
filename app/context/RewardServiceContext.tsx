@@ -23,6 +23,7 @@ interface RewardServiceProviderProps {
 export const RewardServiceProvider: React.FC<RewardServiceProviderProps> = ({
   children,
 }) => {
+  const [isReady, setIsready] = useState<boolean>(false);
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [presets, setPresets] = useState<RewardPreset[]>([]);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -39,6 +40,7 @@ export const RewardServiceProvider: React.FC<RewardServiceProviderProps> = ({
       ]);
       setPresets(newConfig.rewards);
       setRewards(newRewards);
+      setIsready(true);
     };
     fetchRewards();
   }, [historyId]);
@@ -99,7 +101,7 @@ export const RewardServiceProvider: React.FC<RewardServiceProviderProps> = ({
         updateReward,
       }}
     >
-      {children}
+      {isReady ? children : <></>}
     </RewardServiceContext.Provider>
   );
 };

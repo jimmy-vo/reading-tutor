@@ -19,6 +19,7 @@ COPY public/ ./public
 COPY pages/ ./pages
 COPY services/ ./services
 COPY context/ ./context
+COPY helper/ ./helper
 
 RUN npm run build
 
@@ -28,16 +29,9 @@ FROM node:24.4.1-bookworm-slim
 WORKDIR /app
 
 COPY --from=builder /app/package.json /app/package.json
-COPY --from=builder /app/package-lock.json /app/package-lock.json
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/next-env.d.ts ./
 COPY --from=builder /app/tsconfig.json ./
-COPY --from=builder /app/.prettierrc ./
-COPY --from=builder /app/.eslintrc.json ./
-COPY --from=builder /app/models ./models
-COPY --from=builder /app/components ./components
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/pages ./pages
 COPY --from=builder /app/services ./services
 COPY --from=builder /app/.next /app/.next
 
