@@ -3,6 +3,7 @@ import styles from './Rewards.module.css';
 import RewardEntry from './RewardEntry';
 import { RewardStatus } from '../../models/backend/interface';
 import { useRewardService } from '../../context/RewardServiceContext';
+import RewardCreate from './RewardCreate';
 
 const Rewards: React.FC = ({}) => {
   const {
@@ -23,10 +24,6 @@ const Rewards: React.FC = ({}) => {
 
   return (
     <div className={styles.rewardPage}>
-      <div className={styles.balanceContainer}>
-        <p className={styles.heading}>Total: ${lastBalance.toFixed(2)}</p>
-        <p className={styles.heading}>Pending: ${totalPending.toFixed(2)}</p>
-      </div>
       <div className={styles.tableContainer}>
         <table className={styles.table}>
           <thead>
@@ -36,7 +33,6 @@ const Rewards: React.FC = ({}) => {
               </th>
               <th className={styles.centerAlign}>Description</th>
               <th className={styles.centerAlign}>Amount</th>
-
               <th className={[styles.centerAlign, styles.shrink].join(' ')}>
                 Balance
               </th>
@@ -45,7 +41,7 @@ const Rewards: React.FC = ({}) => {
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className={styles.tbody}>
             {rewards.map((reward, index) => (
               <RewardEntry
                 key={reward.id}
@@ -57,23 +53,30 @@ const Rewards: React.FC = ({}) => {
                 globalBusy={globalBusy}
               />
             ))}
-            <RewardEntry
-              key="new"
-              item={{
-                id: `${new Date().getTime()}`,
-                date: new Date(),
-                description: '',
-                amount: 0,
-                status: RewardStatus.Pending,
-                balance: lastBalance,
-              }}
-              prevBalance={lastBalance}
-              onSubmit={addReward}
-              isAdmin={isAdmin}
-              globalBusy={globalBusy}
-            />
           </tbody>
         </table>
+      </div>
+      <div className={styles.rewardBottomBar}>
+        <p className={`${styles.balance} ${styles.leftAlign}`}>
+          Total: ${lastBalance.toFixed(2)}
+        </p>
+        <p className={styles.balance}>Pending: ${totalPending.toFixed(2)}</p>
+        <div className={styles.rightAlign}>
+          <RewardCreate
+            key="new"
+            item={{
+              id: `${new Date().getTime()}`,
+              date: new Date(),
+              description: '',
+              amount: 0,
+              status: RewardStatus.Pending,
+              balance: lastBalance,
+            }}
+            prevBalance={lastBalance}
+            onSubmit={addReward}
+            globalBusy={globalBusy}
+          />
+        </div>
       </div>
     </div>
   );

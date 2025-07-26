@@ -1,26 +1,24 @@
 .rewardPage {
-  width: 100%;
-  /* padding: 20px; */
-}
-
-.heading {
-  font-size: x-large;
-  font-weight: bold;
-  display: inline;
-  margin: 20px;
-  width: auto;
-}
-
-.balanceContainer {
+  flex-direction: column;
+  height: 100vh;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 40px;
+  overflow: hidden;
 }
 
 .tableContainer {
-  max-height: calc(100vh - 40px - 20px);
-  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+  height: calc(100vh - 40px);
+}
+
+.rewardBottomBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  background-color: white;
+  height: 40px;
 }
 
 .table {
@@ -31,15 +29,8 @@
 .table thead {
   position: sticky;
   top: 0;
-  background-color: white; /* Adjust the background color as needed */
+  background-color: white;
   z-index: 100;
-}
-
-.table th,
-.table td {
-  padding: 8px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
 }
 
 .rewardPage table {
@@ -49,6 +40,7 @@
 
 .rewardPage th,
 .rewardPage td {
+  vertical-align: top;
   padding: 10px;
   border: 1px solid #ccc;
   text-align: left;
@@ -66,4 +58,23 @@
   white-space: nowrap;
   width: 1%;
   max-width: max-content;
+}
+
+.rewardBottomBar > * {
+  flex: 1;
+  text-align: center;
+}
+
+.leftAlign {
+  text-align: left;
+}
+
+.rightAlign {
+  text-align: right;
+}
+
+.balance {
+  font-size: x-large;
+  font-weight: bold;
+  margin: 5px;
 }

@@ -9,7 +9,7 @@ const WordComponent: React.FC<WordComponentProps> = ({ word }) => {
   const handleMouseOver = () => {
     const utterance = new SpeechSynthesisUtterance(word);
     window.speechSynthesis.speak(utterance);
-    console.debug(`Hover on ${word}`);
+    console.debug(`Double clicked on ${word}`);
   };
 
   return (

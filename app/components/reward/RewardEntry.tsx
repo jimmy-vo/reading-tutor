@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const dollarConvert = (value) => `$${value.toFixed(2)}`;
 import styles from './RewardEntry.module.css';
@@ -6,13 +6,11 @@ import { Reward, RewardStatus } from '../../models/backend/interface';
 import Spinner from '../common/Spinner';
 import { useRewardService } from '../../context/RewardServiceContext';
 
-type Option = { key: string; value: string };
-
 interface RewardEntryProps {
   item: Reward;
   prevBalance: number;
   onSubmit: (reward: Reward) => Promise<Reward>;
-  onRemoved?: (id: string) => Promise<void>;
+  onRemoved: (id: string) => Promise<void>;
   isAdmin: boolean;
   globalBusy: boolean;
 }
@@ -26,10 +24,6 @@ const RewardEntry: React.FC<RewardEntryProps> = ({
   globalBusy,
 }) => {
   const { presets } = useRewardService();
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  const selectRef = React.useRef(null);
-
   const [original, setOriginal] = useState(item);
   const [description, setDescription] = useState(item.description);
   const [amount, setAmount] = useState(item.amount);
@@ -43,21 +37,15 @@ const RewardEntry: React.FC<RewardEntryProps> = ({
     setStatus(item.status);
   }, [item]);
 
-  const handlePresetSelect = () => {
-    setShowDropdown(!showDropdown);
-    if (selectRef.current) {
-      selectRef.current.focus();
-      selectRef.current.size = presets.length;
-    }
-    setShowDropdown(!showDropdown);
-  };
+  const [showTooltip, setShowTooltip] = useState(false);
 
-  const handlePresetChange = (value) => {
-    setShowDropdown(false);
-    const preset = presets.find((p) => p.id === value);
-    setDescription(preset.description);
-    setAmount(preset.amount);
-  };
+  const handleMouseEnter = useCallback(() => {
+    setShowTooltip(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setShowTooltip(false);
+  }, []);
 
   const handleDescriptionChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>,
@@ -116,7 +104,6 @@ const RewardEntry: React.FC<RewardEntryProps> = ({
     (status === RewardStatus.Approved && !isAdmin) || globalBusy;
   const isUpdateEnabled = isAdmin || status !== RewardStatus.Approved;
   const isDeleteEnabled = onRemoved !== undefined && isUpdateEnabled;
-  const isSelectPresetEnabled = onRemoved === undefined;
 
   return (
     <tr
@@ -142,7 +129,7 @@ const RewardEntry: React.FC<RewardEntryProps> = ({
         )}
       </td>
       <td>
-        {readOnly ? (
+        {readOnly || item.presetId !== undefined ? (
           <p className={styles.dollarCell}>{dollarConvert(amount)}</p>
         ) : (
           <input
@@ -154,12 +141,26 @@ const RewardEntry: React.FC<RewardEntryProps> = ({
           />
         )}
       </td>
-      <td onClick={handleStatusChange}>
+      <td
+        onClick={handleStatusChange}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <p className={styles.dollarCell}>
           {status === RewardStatus.Pending
             ? 'N/A'
             : dollarConvert(getBalance())}
         </p>
+        {showTooltip && (
+          <div
+            className={`${styles.tooltip} ${
+              showTooltip ? styles.showTooltip : ''
+            }`}
+          >
+            {presets.find((x) => x.id == item.presetId)?.description ??
+              'Custom'}
+          </div>
+        )}
       </td>
       <td
         className={[
@@ -178,29 +179,6 @@ const RewardEntry: React.FC<RewardEntryProps> = ({
               {'✖️'}
             </button>
           )}
-          {isSelectPresetEnabled && (
-            <button
-              onClick={handlePresetSelect}
-              className={[styles.actionButton, styles.greyButton].join(' ')}
-            >
-              {'❕'}
-              {showDropdown && (
-                <DropdownOnly
-                  options={presets.map((preset) => ({
-                    key: preset.id,
-                    value: `${preset.description} - ${dollarConvert(
-                      preset.amount,
-                    )}`,
-                  }))}
-                  onSelect={(opt) => {
-                    const preset = presets.find((p) => p.id === opt.key);
-                    handlePresetChange(preset.id);
-                  }}
-                />
-              )}
-            </button>
-          )}
-
           {isDeleteBusy && <Spinner size={20} className={styles.spinner} />}
         </div>
       </td>
@@ -223,66 +201,13 @@ const RewardEntry: React.FC<RewardEntryProps> = ({
               ].join(' ')}
               disabled={canUpdate}
             >
-              {onRemoved === undefined ? '➕' : '✔️'}
+              {'✔️'}
             </button>
           )}
           {isUpdateBusy && <Spinner size={20} className={styles.spinner} />}
         </div>
       </td>
     </tr>
-  );
-};
-type DropdownOnlyProps = {
-  options: Option[];
-  onSelect: (option: Option) => void;
-};
-
-const DropdownOnly = ({ options, onSelect }: DropdownOnlyProps) => {
-  const dropdownRef = useRef(null);
-  const [position, setPosition] = useState('bottom');
-
-  useEffect(() => {
-    if (dropdownRef.current) {
-      const rect = dropdownRef.current.getBoundingClientRect();
-      if (rect.bottom < window.innerHeight / 2) {
-        setPosition('top');
-      } else {
-        setPosition('bottom');
-      }
-    }
-  }, []);
-
-  return (
-    <ul
-      ref={dropdownRef}
-      style={{
-        border: '1px solid #ccc',
-        listStyle: 'none',
-        margin: 0,
-        padding: '5px',
-        background: '#fff',
-        position: 'absolute', // for layering if needed
-        [position]: '0px',
-        right: '0px',
-      }}
-    >
-      {options.map((opt, idx) => (
-        <li
-          key={idx}
-          style={{
-            padding: '5px',
-            cursor: 'pointer',
-            color: 'black',
-            textAlign: 'left',
-          }}
-          onClick={() => onSelect(opt)}
-          onMouseOver={(e) => (e.currentTarget.style.background = '#eee')}
-          onMouseOut={(e) => (e.currentTarget.style.background = '#fff')}
-        >
-          {opt.value}
-        </li>
-      ))}
-    </ul>
   );
 };
 

@@ -27,6 +27,7 @@ export enum RewardStatus {
 
 export interface Reward {
     id: string;
+    presetId?: string | undefined;
     description: string;
     date: Date;
     status: RewardStatus;

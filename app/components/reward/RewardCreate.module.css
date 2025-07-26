@@ -1,0 +1,28 @@
+.actionButton {
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.greyButton {
+  background-color: #9e9e9e;
+}
+
+.greyButton:hover:not(.disabledButton) {
+  background-color: #757575;
+}
+
+.spinnerContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinnerContainer .spinner {
+  position: absolute;
+  z-index: 1;
+}
