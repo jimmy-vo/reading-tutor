@@ -1,0 +1,115 @@
+.rewardEntry {
+  display: table-row;
+}
+
+.rewardEntry.approved td {
+  background-color: #d4edda; /* light green background */
+  color: #155724; /* dark green text */
+}
+
+.rewardEntry td {
+  padding: 8px;
+}
+
+.actionButton {
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.greenButton {
+  background-color: #4caf50;
+}
+
+.greenButton:hover:not(.disabledButton) {
+  background-color: #45a049;
+}
+
+.redButton {
+  background-color: #f44336;
+}
+
+.redButton:hover:not(.disabledButton) {
+  background-color: #e53935;
+}
+
+.greyButton {
+  background-color: #9e9e9e;
+}
+
+.greyButton:hover:not(.disabledButton) {
+  background-color: #757575;
+}
+
+.disabledButton {
+  cursor: not-allowed;
+  opacity: 0.2;
+}
+
+.dropdown {
+  position: absolute !important;
+  z-index: 1;
+}
+
+.dropdown.show {
+  display: block;
+}
+
+.dropdown.hide {
+  width: 0px;
+  display: none;
+}
+.error {
+  border: 2px solid red;
+}
+
+.spinnerContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinnerContainer .actionButton {
+  z-index: 10;
+}
+
+.spinnerContainer .spinner {
+  position: absolute;
+  z-index: 1;
+}
+
+.transparentTd {
+  background-color: transparent !important;
+}
+
+.dollarCell {
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .rewardEntry {
+    display: block;
+    width: 100%;
+  }
+
+  .rewardEntry td {
+    display: block;
+    width: 100%;
+    padding: 5px;
+  }
+
+  .actionButton {
+    width: 100%;
+    padding: 10px;
+  }
+}
+
+.shrink {
+  white-space: nowrap;
+  width: 1%;
+  max-width: max-content;
+}

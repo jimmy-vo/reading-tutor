@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import styles from './PassageChallenges.module.css';
-import Spinner from './Spinner';
-import { ContentSet } from '../models/view/interface';
-import { useProgress } from '../context/ProgressProvider';
-import Button from './Button';
+import Spinner from '../common/Spinner';
+import { ContentSet } from '../../models/view/interface';
+import { useProgress } from '../../context/ProgressProvider';
+import Button from '../common/Button';
 
 interface PassageChallengesProps {
   item: ContentSet;
   key?: React.Key;
 }
 
-const PassageChallenges: React.FC<PassageChallengesProps> = ({ item, key }) => {
+const PassageChallenges: React.FC<PassageChallengesProps> = ({ item }) => {
   const { submit } = useProgress();
   const [localChallenges, setChallenges] = useState(item.challenges);
   const [isSubmitDisabled, setSubmitDisabled] = useState(true);
@@ -38,7 +38,7 @@ const PassageChallenges: React.FC<PassageChallengesProps> = ({ item, key }) => {
   };
 
   return (
-    <div className={styles.container} key={key}>
+    <div className={styles.container}>
       <div aria-hidden="true" className={styles.inputContainer}>
         {localChallenges.map((qna, index) => (
           <div key={qna.id}>

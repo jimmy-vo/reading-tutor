@@ -1,7 +1,7 @@
 import { GradeItemClient } from './gradeClientService';
 import { ContentSet, GradeGroup, GradeItem, GradeState, ItemState, ProgressGrade } from '../models/view/interface';
 import { HistoryIdStorage } from './storageService';
-import { Env } from './configService';
+import { ConfigClient } from './configClientService';
 
 export class ProgressService {
     private _historyId: string
@@ -22,10 +22,14 @@ export class ProgressService {
             }, 100);
         }).then(async () => {
             this._historyId = HistoryIdStorage.read();
-            this.history = await GradeItemClient.getAll(this._historyId);
+            const [config, history] = await Promise.all([
+                ConfigClient.get(),
+                GradeItemClient.getAll(this._historyId)
+            ]);
+            this.history = history;
             console.log(this.history)
             this.gradeId = Math.max(...this.history.map(x => x.gradeId));
-            this.gradeGroups = Env.grades.map((grade) => ({
+            this.gradeGroups = config.grades.map((grade) => ({
                 id: grade.id,
                 count: grade.count,
                 history: this.history

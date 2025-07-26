@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import styles from './ProgressBar.module.css';
-import { GradeGroup, GradeState, ItemState } from '../models/view/interface';
+import { GradeGroup, GradeState, ItemState } from '../../models/view/interface';
 
 interface ProgressDotsProps {
   className?: string;

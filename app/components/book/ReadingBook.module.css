@@ -1,0 +1,35 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.bookCover {
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  background: radial-gradient(circle at left, #5a0a0a, #3b0606);
+  transform-origin: right center;
+
+  width: max(calc(100% - 100px), 600px);
+  height: max(calc(100% - 100px), 6500px);
+  padding: 10px 15px;
+  margin: 40px auto;
+}
+
+.progressBar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.inactiveTracker {
+  width: 100%;
+  height: 15px;
+  background-color: #f3f3f3;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  overflow: hidden;
+}

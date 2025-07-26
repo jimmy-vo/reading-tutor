@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { InactiveTrackerService } from '../services/inactiveTrackerService';
+import { InactiveTrackerService } from '../../services/inactiveTrackerService';
 import styles from './InactiveTracker.module.css';
 
 interface InactiveTrackerProps {

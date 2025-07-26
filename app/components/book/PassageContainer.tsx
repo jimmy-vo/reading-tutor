@@ -2,17 +2,17 @@ import React, { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import styles from './PassageContainer.module.css';
 import Image from 'next/image';
-import Spinner from './Spinner';
+import Spinner from '../common/Spinner';
 import WordComponent from './WordComponent';
-import { useProgress } from '../context/ProgressProvider';
-import { ContentSet } from '../models/view/interface';
+import { useProgress } from '../../context/ProgressProvider';
+import { ContentSet } from '../../models/view/interface';
 
 interface PassageContainerProps {
   item: ContentSet;
   key?: React.Key;
 }
 
-const PassageContainer: React.FC<PassageContainerProps> = ({ item, key }) => {
+const PassageContainer: React.FC<PassageContainerProps> = ({ item }) => {
   const componentRef = useRef(null);
   const { progressService } = useProgress();
   const captureImage = () => {
@@ -31,7 +31,7 @@ const PassageContainer: React.FC<PassageContainerProps> = ({ item, key }) => {
     }
   };
   return (
-    <div ref={componentRef} className={styles.container} key={key}>
+    <div ref={componentRef} className={styles.container}>
       <p className={styles.title}>
         {item.topic.split(' ').map((word, index) => (
           <WordComponent key={index} word={word} />

@@ -1,11 +1,9 @@
 import { llmCompletion } from './openaiService';
 import { Env } from './configService';
+import { Grade } from '../models/backend/interface';
 
-export async function generateTopic(topics: string[], level: number = 1): Promise<string> {
-    const grade = Env.grades.find(x => x.id === level);
-    if (grade === undefined) {
-        throw new Error(`Cannot get grade ${level}`);
-    }
+export async function generateTopic(grade: Grade, topics: string[]): Promise<string> {
+
 
     if (Env.Llm.mockedApi !== undefined) {
         await new Promise(resolve => setTimeout(resolve, 500));

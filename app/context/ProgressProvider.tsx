@@ -77,7 +77,7 @@ export const ProgressProvider = ({
     handleActiveItemChanged({ ...patchedItem });
   };
 
-  console.debug('Home');
+  console.debug('ProgressProvider');
   return (
     <ProgressContext.Provider value={{ progressService, submit }}>
       {children}

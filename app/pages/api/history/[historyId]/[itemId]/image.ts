@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import { Env } from '../../../../../services/configService';
 import path from 'path';
-import { getItem } from '../../../../../services/historyRepository';
+import { ReadingRepository } from '../../../../../services/historyRepository';
 
 export interface GenerateImageOutput {
     id: string;
@@ -15,7 +15,7 @@ export default async function handler(
 ) {
     const { historyId, itemId } = req.query as { historyId: string, itemId: string };
     if (req.method === 'GET') {
-        const item = getItem(historyId, itemId);
+        const item = ReadingRepository.getItem(historyId, itemId);
 
         const imagePath = path.join(Env.storagePath, historyId, "images", `${item.image}.png`);
 

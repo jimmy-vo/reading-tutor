@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { readHistory, updateItem } from '../../../../services/historyRepository';
+import { ReadingRepository } from '../../../../services/historyRepository';
 import { verifyAnswers } from '../../../../services/verifyAnswersService';
 import { ContentSet } from '../../../../models/view/interface';
 import { generateImage } from '../../../../services/generateImageService';
@@ -14,7 +14,7 @@ export default async function handler(
         case 'PATCH':
             try {
                 const dto = req.body as ContentSet;
-                const history = readHistory(historyId);
+                const history = ReadingRepository.readHistory(historyId);
                 const idx = history.findIndex(x => x.id === itemId);
                 if (idx === -1 || dto.id !== itemId) {
                     res.status(404).json({ error: 'Item not found' });
@@ -32,7 +32,7 @@ export default async function handler(
                         return ({ ...x, correct: value.correct, explaination: value.suggestion });
                     })
                 }
-                await updateItem(historyId, item);
+                await ReadingRepository.updateItem(historyId, item);
                 res.status(200).json(item);
             } catch (error) {
                 console.error("Failed to verify answers:", error);

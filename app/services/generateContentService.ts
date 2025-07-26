@@ -1,4 +1,5 @@
 import { llmCompletion } from './openaiService';
+import { ConfigRepository } from './configRepository';
 import { LlmContent } from '../models/dtoInterface';
 import { Env } from './configService';
 import { Grade } from '../models/backend/interface';
@@ -38,12 +39,13 @@ export const generateContent = async (topic: string, level: number): Promise<Llm
         await new Promise(resolve => setTimeout(resolve, 50));
         return false ? longExample : shortExample;
     }
-    const grade = Env.grades.find(grade => grade.id === level);
+    const configs = ConfigRepository.getGrades();
+    const grade = configs.grades.find(grade => grade.id === level);
 
     if (grade === undefined) throw new Error(`Cannot get grade ${level}`);
 
-    const previousGrade: Grade | undefined = Env.grades.find(grade => grade.id === level - 1);
-    const nextGrade: Grade | undefined = Env.grades.find(grade => grade.id === level + 1);
+    const previousGrade: Grade | undefined = configs.grades.find(grade => grade.id === level - 1);
+    const nextGrade: Grade | undefined = configs.grades.find(grade => grade.id === level + 1);
 
     const previousGradeRequirement = previousGrade === undefined
         ? ""

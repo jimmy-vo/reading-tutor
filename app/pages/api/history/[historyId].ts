@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { addItem, readHistory } from '../../../services/historyRepository';
+import { ReadingRepository } from '../../../services/historyRepository';
 import { generateContent } from '../../../services/generateContentService';
 import { generateTopic } from '../../../services/generateTopicService';
 import { Util } from '../../../services/storageService';
 import { ContentSet } from '../../../models/view/interface';
-import { Env } from '../../../services/configService';
+import { ConfigRepository } from '../../../services/configRepository';
 
 export default async function handler(
     req: NextApiRequest,
@@ -14,13 +14,15 @@ export default async function handler(
     switch (req.method) {
         case 'POST':
             try {
-                const history = readHistory(historyId);
+                const configs = ConfigRepository.getGrades();
+                const history = ReadingRepository.readHistory(historyId);
                 const gradeList = history.map(x => x.gradeId);
                 // figure out the grade
                 let gradeId = gradeList.length === 0
-                    ? Math.min(...Env.grades.map(x => x.id))
+
+                    ? Math.min(...configs.grades.map(x => x.id))
                     : Math.max(...history.map(x => x.gradeId));
-                let count = Env.grades.find(x => x.id === gradeId).count;
+                let count = configs.grades.find(x => x.id === gradeId).count;
                 const items = history
                     .filter(x => x.gradeId == gradeId)
                     .map(x => {
@@ -46,8 +48,13 @@ export default async function handler(
                     gradeId += 1;
                 }
 
+                const grade = configs.grades.find(x => x.id === gradeId);
+                if (grade === undefined) {
+                    throw new Error(`Cannot get grade ${gradeId}`);
+                }
+
                 const topics = history.map(x => x.topic);
-                const topic = await generateTopic(topics, gradeId);
+                const topic = await generateTopic(grade, topics);
                 const content = await generateContent(topic, gradeId);
                 const parsedContent: ContentSet = {
                     id: Util.getGuid(),
@@ -64,7 +71,7 @@ export default async function handler(
                         correct: undefined,
                     }))
                 };
-                await addItem(historyId, parsedContent);
+                await ReadingRepository.addItem(historyId, parsedContent);
                 res.status(200).json(parsedContent);
             } catch (error) {
                 console.error("Failed to generate new item:", error);
@@ -73,7 +80,7 @@ export default async function handler(
             break;
         case 'GET':
             try {
-                const history = readHistory(historyId);
+                const history = ReadingRepository.readHistory(historyId);
                 res.status(200).json(history);
             } catch (error) {
                 console.error(error);

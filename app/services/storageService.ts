@@ -9,6 +9,21 @@ export namespace Util {
             return v.toString(16);
         });
     }
+
+    export namespace Role {
+        const KEY = 'isAdmin';
+        const defaultValue = false;
+
+        export const read = (): boolean => {
+            console.debug("Role.read");
+            const isAdmin = localStorage.getItem(KEY);
+            if (isAdmin === null) {
+                localStorage.setItem(KEY, JSON.stringify(defaultValue));
+                return defaultValue;
+            }
+            return JSON.parse(isAdmin);
+        };
+    }
 }
 
 export namespace InactiveTrackerStorage {
