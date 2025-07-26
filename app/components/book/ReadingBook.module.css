@@ -5,24 +5,21 @@
   overflow: hidden;
 }
 
-.bookCover {
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  background: radial-gradient(circle at left, #5a0a0a, #3b0606);
-  transform-origin: right center;
-
-  width: max(calc(100% - 100px), 600px);
-  height: max(calc(100% - 100px), 6500px);
-  padding: 10px 15px;
-  margin: 40px auto;
-}
-
 .progressBar {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   align-items: flex-start;
+  height: auto; /* <-- Allow to grow as content requires */
+  min-height: 30px; /* <-- Optional: keep a minimum if desired */
   width: 100%;
+}
+
+.mainContent {
+  flex: 1 1 0; /* <-- Stretch to fill remaining space */
+  width: 100%;
+  overflow: auto; /* <-- Make this the scrollable area */
+  /* Remove fixed height */
 }
 
 .inactiveTracker {

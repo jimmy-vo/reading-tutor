@@ -61,8 +61,8 @@ const PassageContainer: React.FC<PassageContainerProps> = ({ item }) => {
                 }/image`}
                 className={styles.image}
                 alt={item.topic}
-                width={500}
-                height={300}
+                width={1000}
+                height={1000}
               />
             );
         }

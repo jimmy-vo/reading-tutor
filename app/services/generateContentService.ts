@@ -37,7 +37,7 @@ const shortExample: LlmContent = {
 export const generateContent = async (topic: string, level: number): Promise<LlmContent> => {
     if (Env.Llm.mockedApi !== undefined) {
         await new Promise(resolve => setTimeout(resolve, 50));
-        return false ? longExample : shortExample;
+        return true ? longExample : shortExample;
     }
     const configs = ConfigRepository.getGrades();
     const grade = configs.grades.find(grade => grade.id === level);

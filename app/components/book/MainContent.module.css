@@ -1,0 +1,20 @@
+.pageAnimationWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  /* Optional: for mobile scrolling fallback */
+  /* box-sizing: border-box; */
+}
+.pageAnimation {
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  background: radial-gradient(circle at left, #5a0a0a, #3b0606);
+
+  aspect-ratio: 9 / 7;
+  width: 100%;
+  max-width: 1080px;
+  width: calc(100% - 40px);
+  padding: 10px 15px;
+  margin: 0;
+}

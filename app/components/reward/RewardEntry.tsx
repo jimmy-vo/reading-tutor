@@ -184,7 +184,10 @@ const RewardEntry: React.FC<RewardEntryProps> = ({
               {'❕'}
               {showDropdown && (
                 <DropdownOnly
-                  options={presets.map((preset) => preset.description)}
+                  options={presets.map(
+                    (preset) =>
+                      `${preset.description} - ${dollarConvert(preset.amount)}`,
+                  )}
                   onSelect={(description) => {
                     const preset = presets.find(
                       (p) => p.description === description,

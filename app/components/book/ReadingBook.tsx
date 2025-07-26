@@ -86,7 +86,7 @@ export default function ReadingBook() {
         )}
         {selectedItemId !== '' && (
           <MainContent
-            className={styles.bookCover}
+            className={styles.mainContent}
             selectedItemId={selectedItemId}
             onCurrentIdChanged={setCurrentItemId}
           />
