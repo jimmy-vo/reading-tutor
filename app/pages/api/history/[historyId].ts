@@ -5,6 +5,7 @@ import { generateTopic } from '../../../services/generateTopicService';
 import { Util } from '../../../services/storageService';
 import { ContentSet } from '../../../models/view/interface';
 import { ConfigRepository } from '../../../services/configRepository';
+import { retry } from '../../../helper/retry';
 
 export default async function handler(
     req: NextApiRequest,
@@ -54,8 +55,8 @@ export default async function handler(
                 }
 
                 const topics = history.map(x => x.topic);
-                const topic = await generateTopic(grade, topics);
-                const content = await generateContent(topic, gradeId);
+                const topic = await retry(async () => await generateTopic(grade, topics));
+                const content = await retry(async () => await generateContent(topic, gradeId));
                 const parsedContent: ContentSet = {
                     id: Util.getGuid(),
                     gradeId: gradeId,

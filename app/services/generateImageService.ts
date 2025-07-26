@@ -3,38 +3,33 @@ import fs from 'fs';
 import { Env } from '../services/configService';
 import path from 'path';
 import { ContentSet } from '../models/view/interface';
+import { retry } from '../helper/retry';
 
 const mockedImageId = true ? "mocked-id" : undefined;
 
 export const generateImage = async (historyId: string, item: ContentSet): Promise<ContentSet> => {
-    const previousAttempts: string[] = [];
-    const maxRetries = 3;
 
     const imageDir = path.join(Env.storagePath, historyId, "images");
     if (!fs.existsSync(imageDir)) {
         fs.mkdirSync(imageDir, { recursive: true });
     }
 
-    const imagePath = path.join(imageDir, `${item.image}.png`);
+    const imagePath = path.join(imageDir, `${item.id}.png`);
     if (Env.Disfusion.mockedApi !== undefined) {
         await new Promise(resolve => setTimeout(resolve, 500));
         item.image = mockedImageId
         return item;
     }
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-            const prompt = await getImagePrompt(item, previousAttempts);
-            previousAttempts.push(prompt);
-            const base64Image = await imageComplettion(prompt);
-            const buffer = Buffer.from(base64Image, 'base64');
-            fs.writeFileSync(imagePath, buffer);
-            return { ...item, image: item.id }
-        } catch (error) {
-            console.error(error)
-            continue;
-        }
-    }
-    return item
+    const previousAttempts: string[] = [];
+
+    return await retry(async () => {
+        const prompt = await getImagePrompt(item, previousAttempts);
+        previousAttempts.push(prompt);
+        const base64Image = await imageComplettion(prompt);
+        const buffer = Buffer.from(base64Image, 'base64');
+        fs.writeFileSync(imagePath, buffer);
+        return { ...item, image: item.id }
+    })
 };
 
 
